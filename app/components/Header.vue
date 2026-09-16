@@ -36,7 +36,7 @@
     </div>
     <div class="flex-none">
       <Notification v-if="notification" :message="notification" />
-      <portal-target name="notification" />
+      <div id="notification" />
     </div>
     <div class="flex-none mr-4">
       <button v-if="$auth.loggedIn" class="btn btn-primary normal-case text-slate-50 gap-2" @click="logout">

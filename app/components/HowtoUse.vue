@@ -12,7 +12,7 @@
           <div class="collapse-content focus:pointer-events-none">
             <div class="prose max-w-fit">
               <p>
-                Obtain your certificate via CLI, <a :href="$config.apiURL" target="_blank">API</a> or filling out the web form. You just need to do this once.
+                Obtain your certificate via CLI, <a :href="$config.public.apiURL" target="_blank">API</a> or filling out the web form. You just need to do this once.
                 After a minute your certificate is issued and browsable under the CA's you choosed.
               </p>
             </div>
@@ -34,8 +34,8 @@
               </p>
             </div>
             <div class="mockup-code mt-2">
-              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/fullchain > fullchain.pem</code></pre>
-              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/key > key.pem</code></pre>
+              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.public.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/fullchain > fullchain.pem</code></pre>
+              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.public.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/key > key.pem</code></pre>
             </div>
           </div>
         </div>
@@ -58,13 +58,13 @@
 </code>
 </pre>
               <pre class="px-5" data-prefix="[~]$"><code class="text-success"># poll DNS3L regularly for a newer one</code></pre>
-              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/crt |\
+              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.public.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/crt |\
         openssl x509 -noout -dates | grep ^notAfter
 </code>
 </pre>
               <pre class="px-5" data-prefix="[~]$"><code class="text-success"># deploy a renewed one</code></pre>
-              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/fullchain > fullchain.pem</code></pre>
-              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/key > key.pem</code></pre>
+              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.public.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/fullchain > fullchain.pem</code></pre>
+              <pre class="px-5" data-prefix="[~]$"><code>curl -s {{$config.public.apiURL}}/ca/{caId}/crt/bar.foo.company.tld/pem/key > key.pem</code></pre>
             </div>
           </div>
         </div>

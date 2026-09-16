@@ -33,22 +33,13 @@
 export default {
   name: 'ViewAPI',
   auth: false,
-  data () {
-    return {
-      isViewerLoaded: false
-    }
-  },
-  head () {
-    return {
+  setup () {
+    // Nuxt 4: head() gibt es nicht mehr -> useHead
+    useHead({
       script: [
-        {
-          src: 'https://unpkg.com/rapidoc/dist/rapidoc-min.js',
-          defer: true,
-          type: 'module',
-          callback: () => { this.isViewerLoaded = true }
-        }
+        { src: 'https://unpkg.com/rapidoc/dist/rapidoc-min.js', type: 'module', defer: true }
       ]
-    }
+    })
   }
 }
 </script>

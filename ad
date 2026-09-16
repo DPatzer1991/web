@@ -1,0 +1,15 @@
+ app/components/CaCardGroup.vue |     2 [32m+[m[31m-[m
+ app/components/CaTable.vue     |     2 [32m+[m[31m-[m
+ app/components/Claim.vue       |     6 [32m+[m[31m-[m
+ app/components/Footer.vue      |     4 [32m+[m[31m-[m
+ app/components/Header.vue      |     2 [32m+[m[31m-[m
+ app/components/HowtoUse.vue    |    12 [32m+[m[31m-[m
+ app/layouts/default.vue        |     2 [32m+[m[31m-[m
+ app/pages/browse/[ca].vue      |    10 [32m+[m[31m-[m
+ app/pages/swagger.vue          |    19 [32m+[m[31m-[m
+ app/plugins/fetchHeader.js     |    17 [31m-[m
+ app/plugins/rmd.js             |    21 [31m-[m
+ package.json                   |    39 [32m+[m[31m-[m
+ tailwind.config.js             |    23 [32m+[m[31m-[m
+ yarn.lock                      | 16015 [32m+++++++++++++++++++++++++++++++++++++++++++++++++++[m[31m--------------------------------------------------------------------------------------------------------------[m
+ 14 files changed, 5108 insertions(+), 11066 deletions(-)

@@ -181,10 +181,10 @@ export default {
     }
   },
   async fetch () {
-    this.cas = await fetch(this.$config.apiURL + '/ca',
+    this.cas = await fetch(this.$config.public.apiURL + '/ca',
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
-    this.rtzn = await fetch(this.$config.apiURL + '/dns/rtzn',
+    this.rtzn = await fetch(this.$config.public.apiURL + '/dns/rtzn',
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
   },
@@ -252,7 +252,7 @@ export default {
         this.message.show = false
         this.loading = true
 
-        await fetch(this.$config.apiURL + '/ca/' + this.ca + '/crt',
+        await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt',
           this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null, 'POST', body))
           .then((r) => {
             t.loading = false

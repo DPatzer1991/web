@@ -1,17 +1,14 @@
 module.exports = {
-  content: {
-    relative: true,
-    files: [
-      './.nuxt/**/*.{html,js,vue}',
-      './node_modules/@nuxt/**/*.{html,js,vue}',
-      './pages/**/*.{html,js,vue}',
-      './components/**/*.{html,js,vue}',
-      './layouts/**/*.{html,js,vue}',
-    ],
-  },
-  theme: {
-    extend: {},
-  },
+
+    content: [
+    './app/components/**/*.{vue,js,ts}',
+    './app/layouts/**/*.vue',
+    './app/pages/**/*.vue',
+    './app/plugins/**/*.{js,ts}',
+    './app/app.vue',
+    './app/error.vue',
+  ],
+
   variants: {
     extend: {},
   },

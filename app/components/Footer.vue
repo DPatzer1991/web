@@ -40,7 +40,7 @@
             Unable to load versions.
           </p>
           <p v-else>
-            Version {{ $config.appVersion }}<br>
+            Version {{ $config.public.appVersion }}<br>
             Backend: {{ data.version.daemon }}
             API: {{ data.version.api }}
           </p>
@@ -85,7 +85,7 @@ export default {
     }
   },
   async fetch () {
-    this.data = await fetch(this.$config.apiURL + '/info',
+    this.data = await fetch(this.$config.public.apiURL + '/info',
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
   }

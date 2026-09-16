@@ -47,7 +47,7 @@ export default {
     }
   },
   async fetch () {
-    this.cas = await fetch(this.$config.apiURL + '/ca',
+    this.cas = await fetch(this.$config.public.apiURL + '/ca',
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
   }

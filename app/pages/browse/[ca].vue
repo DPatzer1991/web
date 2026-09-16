@@ -78,7 +78,7 @@
                       Fullchain
                     </button>
                   </div>
-                  <a :href="$config.apiURL + '/ca/' + ca + '/crt/' + nameTrimDot(c.name) + '/pem/fullchain'" class="btn btn-xs btn-ghost">
+                  <a :href="$config.public.apiURL + '/ca/' + ca + '/crt/' + nameTrimDot(c.name) + '/pem/fullchain'" class="btn btn-xs btn-ghost">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3" viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03457.03;">
                       <g><path
                         d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465
@@ -180,12 +180,12 @@ export default {
     }
   },
   async fetch () {
-    this.cas = await fetch(this.$config.apiURL + '/ca',
+    this.cas = await fetch(this.$config.public.apiURL + '/ca',
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
     if (_.findWhere(this.cas, { id: this.$route.params.ca }) != null) {
       this.ca = this.$route.params.ca
-      this.crts = await fetch(this.$config.apiURL + '/ca/' + this.ca + '/crt',
+      this.crts = await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt',
         this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
         .then(res => res.json())
     } else {
@@ -233,7 +233,7 @@ export default {
       const t = this // rescue this context
       this.message.show = false
       this.loading = true
-      await fetch(this.$config.apiURL + '/ca/' + this.ca + '/crt/' + this.crt,
+      await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt/' + this.crt,
         this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null, 'DELETE'))
         .then((r) => {
           t.loading = false
@@ -280,7 +280,7 @@ export default {
           })
           .catch((e) => { })
       } else {
-        this.crts[i].pem = await fetch(this.$config.apiURL + '/ca/' + this.ca + '/crt/' + this.crts[i].name + '/pem',
+        this.crts[i].pem = await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt/' + this.crts[i].name + '/pem',
           this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
           .then((r) => {
             if (r.ok) {

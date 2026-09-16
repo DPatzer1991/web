@@ -1,6 +1,5 @@
 <template>
   <div class="bg-slate-50">
-    <portal to="notification" />
     <div class="flex flex-row flex-wrap gap-4 lg:gap-8 m-4 lg:m-8">
       <WhatitIs />
       <HowtoUse class="flex-1 h-fit" />
