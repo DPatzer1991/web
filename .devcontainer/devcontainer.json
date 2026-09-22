@@ -8,13 +8,26 @@
   },
   "containerUser": "vscode",
   "updateRemoteUserUID": true,
+  // 3000 = yarn dev / dev:mock / dev:dex, 3100 = E2E-Tests, 9323 = Playwright-Bericht & UI-Modus
+  // (der lokale Dex auf 5556 läuft auf dem Host, nicht im Devcontainer)
+  "forwardPorts": [3000, 3100, 9323],
+  "portsAttributes": {
+    "3000": { "label": "Nuxt Dev-Server", "onAutoForward": "notify" },
+    "3100": { "label": "E2E-Test-Server", "onAutoForward": "silent" },
+    "9323": { "label": "Playwright Report/UI", "onAutoForward": "openBrowser" }
+  },
   "customizations": {
     "vscode": {
       "settings": {
         "dev.containers.copyGitConfig": false,
-        "remote.containers.copyGitConfig": false
+        "remote.containers.copyGitConfig": false,
+        "cSpell.language": "en,de",
+        "cSpell.words": ["nuxt", "nuxtjs", "nitro", "daisyui", "mytheme", "dns3l", "dns3ld", "oidc", "rapidoc", "rtzn", "vitest"]
       },
       "extensions": [
+        "Vue.volar",
+        "ms-playwright.playwright",
+        "vitest.explorer",
         "dbaeumer.vscode-eslint",
         "ms-ceintl.vscode-language-pack-de",
         "streetsidesoftware.code-spell-checker",

@@ -26,3 +26,6 @@ RUN curl -L https://github.com/cli/cli/releases/download/v${GITHUB_CLI_VERSION}/
     chown root:root /usr/local/bin/gh && \
     curl -L https://gitlab.com/gitlab-org/cli/-/releases/v${GITLAB_CLI_VERSION}/downloads/glab_${GITLAB_CLI_VERSION}_${_os}_${_arch}${_variant}.tar.gz | tar -xz --strip-components=1 -C /usr/local/bin bin/glab && \
     chown root:root /usr/local/bin/glab
+
+# Chromium für Playwright-E2E-Tests (Playwrights eigene Browser laufen nicht auf Alpine)
+RUN apk add --no-cache chromium
