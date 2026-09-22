@@ -257,7 +257,7 @@ export default {
           .then((r) => {
             t.loading = false
             if (r.ok) { // browse CA
-              window.$nuxt.context.redirect('/browse/' + this.ca)
+              this.$router.push('/browse/' + this.ca)
             } else {
               t.message.title = 'HTTP API returned an error!'
               r.json()

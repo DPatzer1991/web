@@ -13,7 +13,7 @@
           <tbody>
             <tr v-for="ca in cas" :key="ca.id" :class="{ active: ! ca.enabled }" class="hover">
               <td>
-                <NuxtLink :to="'/browse/' + ca.id.toLowerCase()" tag="button" :disabled="! $auth.loggedIn || ! ca.enabled">
+                <NuxtLink :to="'/browse/' + ca.id.toLowerCase()" :disabled="(! $auth.loggedIn || ! ca.enabled) || undefined">
                   <b>{{ ca.name }}</b>
                 </NuxtLink>
                 <CaBadges :type="ca.type" :acme="ca.acme" :count="ca.totalIssued" />

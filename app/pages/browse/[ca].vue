@@ -189,7 +189,7 @@ export default {
         this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
         .then(res => res.json())
     } else {
-      window.$nuxt.context.redirect('/browse')
+      this.$router.replace('/browse')
     }
     const doc = 'https://raw.githubusercontent.com/dns3l/dns3l/master/docs/ca/' + this.ca + '.md'
     this.caHelpMarkdown = await fetch(doc)
@@ -239,7 +239,7 @@ export default {
           t.loading = false
           if (r.ok) { // browse CA
             t.visible = false
-            this.$nuxt.refresh()
+            this.$fetch()
           } else {
             t.message.title = 'HTTP API returned an error!'
             r.json()
@@ -265,10 +265,10 @@ export default {
     },
     async getPEM (i, p) { // eslint-disable-line
       if (this.crts[i][p + 'Copied'] === undefined) {
-        this.$set(this.crts[i], p + 'Copied', null) // https://v2.vuejs.org/v2/guide/list.html#Caveats
+        this.crts[i][p + 'Copied'] = null // https://v2.vuejs.org/v2/guide/list.html#Caveats
       }
       if (this.crts[i].loaded === undefined) {
-        this.$set(this.crts[i], 'loaded', false) // https://v2.vuejs.org/v2/guide/list.html#Caveats
+        this.crts[i].loaded = false // https://v2.vuejs.org/v2/guide/list.html#Caveats
       }
       const t = this // rescue this context
       if (this.crts[i].loaded) {

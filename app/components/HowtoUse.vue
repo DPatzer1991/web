@@ -17,7 +17,7 @@
               </p>
             </div>
             <!-- interactive elements like nuxt-link not working inside this accordion collapse approach...
-            <NuxtLink to="/claim" :disabled="! $auth.loggedIn" class="btn btn-primary mt-4 normal-case text-slate-50 text-l">
+            <NuxtLink to="/claim" :disabled="(! $auth.loggedIn) || undefined" class="btn btn-primary mt-4 normal-case text-slate-50 text-l">
               Get Your Cert
             </NuxtLink>
             -->
