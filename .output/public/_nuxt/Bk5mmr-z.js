@@ -1,1 +1,0 @@
-import{F as e,u as t}from"./CKvf7GkH.js";import{t as n}from"#entry";import{t as r}from"./D8MPL0lh.js";var i={name:`ClaimCert`};function a(n,i,a,o,s,c){let l=r;return e(),t(l,{class:`max-w-fit h-fit mx-auto my-8`})}var o=n(i,[[`render`,a]]);export{o as default};

@@ -99,3 +99,7 @@ sw.*
 /test-results/
 /playwright-report/
 /blob-report/
+.devcontainer/devcontainer.env
+
+# Nuxt build output
+.output
