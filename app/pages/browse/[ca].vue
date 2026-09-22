@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$fetchState.pending && !$fetchState.error">
+  <div v-if="!listLoading && !error">
     <div class="grid grid-cols-1 justify-items-center gap-2 m-8">
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
@@ -74,7 +74,7 @@
                       Fullchain
                     </button>
                   </div>
-                  <a :href="$config.public.apiURL + '/ca/' + ca + '/crt/' + nameTrimDot(c.name) + '/pem/fullchain'" class="btn btn-xs btn-ghost">
+                  <a href="#" title="Fullchain herunterladen" class="btn btn-xs btn-ghost" @click.prevent="downloadPEM(c, 'fullchain')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3" viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03457.03;">
                       <g><path
                         d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465
@@ -168,41 +168,36 @@ export default {
       visible: false,
       loading: false,
       clipboard: false,
-      ca: null,
-      crt: null,
-      cas: [],
-      crts: []
+      crt: null
     }
   },
-  async fetch () {
-    this.cas = await fetch(this.$config.public.apiURL + '/ca',
-      this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-      .then(res => res.json())
-    if (_.findWhere(this.cas, { id: this.$route.params.ca }) != null) {
-      this.ca = this.$route.params.ca
-      this.crts = await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt',
-        this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-        .then(res => res.json())
-    } else {
-      this.$router.replace('/browse')
+  setup () {
+    const route = useRoute()
+    const router = useRouter()
+    const ca = String(route.params.ca)
+    const caList = useCaList()
+    const certs = useCertificates(ca)
+
+    // unbekannte CA -> zurück zur Übersicht (wie bisher)
+    watch(caList.status, (s) => {
+      if (s === 'success' && !caList.data.value.some(c => c.id === ca)) router.replace('/browse')
+    }, { immediate: true })
+
+    return {
+      ca,
+      cas: caList.data,
+      crts: certs.data,
+      listLoading: computed(() => caList.loading.value || certs.loading.value),
+      error: computed(() => caList.error.value || certs.error.value),
+      refreshCrts: certs.refresh
     }
-    const doc = 'https://raw.githubusercontent.com/dns3l/dns3l/master/docs/ca/' + this.ca + '.md'
-    this.caHelpMarkdown = await fetch(doc)
-      .then((response) => {
-        if (!response.ok) { throw new Error('Network response was not OK') }
-        return response.text()
-      })
-      .catch((error) => {
-        console.error('There has been a problem with your fetch operation: ', error)
-        return '### Ooops...\nUnable to fetch ' + doc + '.'
-      })
   },
   computed: {
     caById: function () { // eslint-disable-line
       return _.findWhere(this.cas, { id: this.ca })
     },
     caIsPublic: function () { // eslint-disable-line
-      return _.findWhere(this.cas, { id: this.ca }).type === 'public'
+      return this.caById?.type === 'public'
     },
   },
   mounted () {
@@ -222,32 +217,19 @@ export default {
       this.visible = true
     },
     async deleteCert () { // eslint-disable-line
-      const t = this // rescue this context
       this.message.show = false
       this.loading = true
-      await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt/' + this.crt,
-        this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null, 'DELETE'))
-        .then((r) => {
-          t.loading = false
-          if (r.ok) { // browse CA
-            t.visible = false
-            this.$fetch()
-          } else {
-            t.message.title = 'HTTP API returned an error!'
-            r.json()
-              .then((d) => {
-                t.message.text = r.status + ' ' + r.statusText + ' [' + d.message + ']'
-                t.message.show = true
-              }).catch((e) => {
-                t.message.text = r.status + ' ' + r.statusText
-                t.message.show = true
-              })
-          }
-        })
-        .catch((e) => { // browser/connection error
-          t.loading = false
-          t.message.title = 'Ooops... Browser returned an error!'
-        })
+      try {
+        await this.$api('/ca/' + this.ca + '/crt/' + this.crt, { method: 'DELETE' })
+        this.visible = false
+        await this.refreshCrts()
+      } catch (e) {
+        this.message.title = e?.status ? 'HTTP API returned an error!' : 'Ooops... Browser returned an error!'
+        this.message.text = apiErrorText(e)
+        this.message.show = true
+      } finally {
+        this.loading = false
+      }
     },
     closeAlert: function () { // eslint-disable-line
       this.message.show = false
@@ -262,43 +244,31 @@ export default {
       if (this.crts[i].loaded === undefined) {
         this.crts[i].loaded = false // https://v2.vuejs.org/v2/guide/list.html#Caveats
       }
-      const t = this // rescue this context
-      if (this.crts[i].loaded) {
-        // TODO: visualize that's copied
-        navigator.clipboard.writeText(this.crts[i].pem[p])
-          .then(() => {
-            t.crts[i][p + 'Copied'] = true
-            setTimeout((t, i) => { t.crts[i][p + 'Copied'] = null }, 1300, t, i)
-          })
-          .catch((e) => { })
-      } else {
-        this.crts[i].pem = await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt/' + this.crts[i].name + '/pem',
-          this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-          .then((r) => {
-            if (r.ok) {
-              return r.json() // JSON response, unvalidated
-            } else {
-              return r.json()
-                .catch(e => Promise.reject(new Error(r.status + ' ' + r.statusText)))
-                .then(d => Promise.reject(new Error(r.status + ' ' + r.statusText + ' [' + d.message + ']')))
-            }
-          })
-          .then((d) => {
-            // TODO: visualize that's copied
-            navigator.clipboard.writeText(d[p])
-              .then(() => {
-                t.crts[i][p + 'Copied'] = true
-                setTimeout((t, i) => { t.crts[i][p + 'Copied'] = null }, 1300, t, i)
-              })
-              .catch((e) => { })
-            t.crts[i].loaded = true
-            return d
-          })
-          .catch((e) => {
-            // TODO: visualize the error
-          })
+      try {
+        if (!this.crts[i].loaded) {
+          this.crts[i].pem = await this.$api('/ca/' + this.ca + '/crt/' + this.crts[i].name + '/pem')
+          this.crts[i].loaded = true
+        }
+        await navigator.clipboard.writeText(this.crts[i].pem[p])
+        this.crts[i][p + 'Copied'] = true
+        setTimeout(() => { this.crts[i][p + 'Copied'] = null }, 1300)
+      } catch (e) {
+        useNotification().notify('PEM konnte nicht geladen werden: ' + apiErrorText(e), 'error')
       }
-      // alert(JSON.stringify(this.crts[i], null, ' '))
+    },
+    // Download mit Token (ein einfacher Link würde ohne Anmeldung abgewiesen)
+    async downloadPEM (c, type) {
+      try {
+        const pem = await this.$api('/ca/' + this.ca + '/crt/' + this.nameTrimDot(c.name) + '/pem/' + type, { responseType: 'text' })
+        const url = URL.createObjectURL(new Blob([pem], { type: 'application/x-pem-file' }))
+        const a = document.createElement('a')
+        a.href = url
+        a.download = this.nameTrimDot(c.name) + '.' + type + '.pem'
+        a.click()
+        URL.revokeObjectURL(url)
+      } catch (e) {
+        useNotification().notify('Download fehlgeschlagen: ' + apiErrorText(e), 'error')
+      }
     },
     formatDate: function (d, o) { // eslint-disable-line
       return new Date(d).toLocaleString('de-DE', o ? o : { dateStyle: 'medium', timeStyle: 'medium' }) // eslint-disable-line

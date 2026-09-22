@@ -46,3 +46,11 @@ export const mockPem = (name: string) => {
   const chain = block('CERTIFICATE')
   return { cert, chain, key: block('PRIVATE KEY'), fullchain: cert + chain }
 }
+
+// Wie das echte Backend: schützenswerte Endpunkte nur mit Token (Authorization: Bearer ...)
+export const requireToken = (event: Parameters<typeof getHeader>[0]) => {
+  const auth = getHeader(event, 'authorization') ?? ''
+  if (!auth.startsWith('Bearer ')) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized', data: { code: 401, message: 'missing bearer token' } })
+  }
+}

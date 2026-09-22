@@ -32,16 +32,16 @@
           </a>
         </div>
         <div class="col-span-3 text-xs text-center justify-self-center">
-          <p v-if="$fetchState.pending">
+          <p v-if="loading">
             Loading....
           </p>
-          <p v-else-if="$fetchState.error">
+          <p v-else-if="error">
             Unable to load versions.
           </p>
           <p v-else>
             Version {{ $config.public.appVersion }}<br>
-            Backend: {{ data.version.daemon }}
-            API: {{ data.version.api }}
+            Backend: {{ info.version?.daemon }}
+            API: {{ info.version?.api }}
           </p>
         </div>
       </div>
@@ -50,18 +50,18 @@
       <p class="font-bold justify-self-end">
         Made with <span class="text-red-600">&hearts;</span> by Access 4.0
       </p>
-      <div v-if="!$fetchState.pending && !$fetchState.error" class="grid grid-flow-col gap-4 justify-self-end">
+      <div v-if="!loading && !error" class="grid grid-flow-col gap-4 justify-self-end">
         <a href="https://github.com/dns3l" target="_blank">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="fill-current">
             <path d="M12 2.247a10 10 0 0 0-3.162 19.487c.5.088.687-.212.687-.475c0-.237-.012-1.025-.012-1.862c-2.513.462-3.163-.613-3.363-1.175a3.636 3.636 0 0 0-1.025-1.413c-.35-.187-.85-.65-.013-.662a2.001 2.001 0 0 1 1.538 1.025a2.137 2.137 0 0 0 2.912.825a2.104 2.104 0 0 1 .638-1.338c-2.225-.25-4.55-1.112-4.55-4.937a3.892 3.892 0 0 1 1.025-2.688a3.594 3.594 0 0 1 .1-2.65s.837-.262 2.75 1.025a9.427 9.427 0 0 1 5 0c1.912-1.3 2.75-1.025 2.75-1.025a3.593 3.593 0 0 1 .1 2.65a3.869 3.869 0 0 1 1.025 2.688c0 3.837-2.338 4.687-4.563 4.937a2.368 2.368 0 0 1 .675 1.85c0 1.338-.012 2.413-.012 2.75c0 .263.187.575.687.475A10.005 10.005 0 0 0 12 2.247z" />
           </svg>
         </a>
-        <a v-if="Array.isArray(data.contact.email)" :href="'mailto:' + data.contact.email.join(',') + '?subject=Hello DNS3L...'">
+        <a v-if="Array.isArray(info.contact?.email)" :href="'mailto:' + info.contact?.email.join(',') + '?subject=Hello DNS3L...'">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
         </a>
-        <a v-if="data.contact.url" :href="data.contact.url">
+        <a v-if="info.contact?.url" :href="info.contact?.url">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
@@ -74,15 +74,9 @@
 <script>
 export default {
   name: 'PageFooter',
-  data () {
-    return {
-      data: {}
-    }
-  },
-  async fetch () {
-    this.data = await fetch(this.$config.public.apiURL + '/info',
-      this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-      .then(res => res.json())
+  setup () {
+    const { data: info, loading, error } = useInfo()
+    return { info, loading, error }
   }
 }
 </script>

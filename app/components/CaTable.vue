@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$fetchState.pending && !$fetchState.error">
+  <div v-if="!loading && !error">
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
         <table class="table table-compact overflow-x-auto">
@@ -40,15 +40,9 @@
 <script>
 export default {
   name: 'CaTable',
-  data () {
-    return {
-      cas: []
-    }
-  },
-  async fetch () {
-    this.cas = await fetch(this.$config.public.apiURL + '/ca',
-      this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-      .then(res => res.json())
+  setup () {
+    const { data: cas, loading, error } = useCaList()
+    return { cas, loading, error }
   }
 }
 </script>

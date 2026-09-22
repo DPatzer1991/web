@@ -1,5 +1,6 @@
 // DELETE /mock/ca/:ca/crt/:crt
 export default defineEventHandler((event) => {
+  requireToken(event)
   const ca = getRouterParam(event, 'ca')!
   const crt = decodeURIComponent(getRouterParam(event, 'crt')!)
   const list = mockCrts[ca] ?? []

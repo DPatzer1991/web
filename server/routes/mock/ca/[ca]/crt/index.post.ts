@@ -1,5 +1,6 @@
 // POST /mock/ca/:ca/crt  -> Zertifikat "claimen"
 export default defineEventHandler(async (event) => {
+  requireToken(event)
   const ca = getRouterParam(event, 'ca')!
   const body = await readBody<{ name?: string, wildcard?: boolean }>(event)
   if (!body?.name) {

@@ -154,6 +154,11 @@
 import _ from 'underscore'
 export default {
   name: 'ClaimCert',
+  setup () {
+    const { data: cas } = useCaList()
+    const { data: rtzn } = useRootZones()
+    return { cas, rtzn }
+  },
   data () {
     return {
       message: {
@@ -175,20 +180,9 @@ export default {
       san: null,
       ip: null,
       wildcard: false,
-      autodns: false,
-      cas: [],
-      rtzn: []
+      autodns: false
     }
   },
-  async fetch () {
-    this.cas = await fetch(this.$config.public.apiURL + '/ca',
-      this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-      .then(res => res.json())
-    this.rtzn = await fetch(this.$config.public.apiURL + '/dns/rtzn',
-      this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
-      .then(res => res.json())
-  },
-  // fetchOnServer: false
   computed: {
     isCaACME: function () { // eslint-disable-line
       return !this.ca ? false : _.findWhere(this.cas, { id: this.ca }).acme
@@ -248,32 +242,18 @@ export default {
         autodns: this.autodns && this.ip ? { ipv4: this.ip } : null
       }
       if (this.checkForm()) {
-        const t = this // rescue this context
         this.message.show = false
         this.loading = true
-
-        await fetch(this.$config.public.apiURL + '/ca/' + this.ca + '/crt',
-          this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null, 'POST', body))
-          .then((r) => {
-            t.loading = false
-            if (r.ok) { // browse CA
-              this.$router.push('/browse/' + this.ca)
-            } else {
-              t.message.title = 'HTTP API returned an error!'
-              r.json()
-                .then((d) => {
-                  t.message.text = r.status + ' ' + r.statusText + ' [' + d.message + ']'
-                  t.message.show = true
-                }).catch((e) => {
-                  t.message.text = r.status + ' ' + r.statusText
-                  t.message.show = true
-                })
-            }
-          })
-          .catch((e) => { // browser/connection error
-            t.loading = false
-            t.message.title = 'Ooops... Browser returned an error!'
-          })
+        try {
+          await this.$api('/ca/' + this.ca + '/crt', { method: 'POST', body })
+          this.$router.push('/browse/' + this.ca) // browse CA
+        } catch (e) {
+          this.message.title = e?.status ? 'HTTP API returned an error!' : 'Ooops... Browser returned an error!'
+          this.message.text = apiErrorText(e)
+          this.message.show = true
+        } finally {
+          this.loading = false
+        }
       }
     },
     resetForm: function () { // eslint-disable-line

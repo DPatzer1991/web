@@ -1,5 +1,6 @@
 // GET /mock/ca/:ca/crt/:crt/pem/:type  -> PEM als Datei
 export default defineEventHandler((event) => {
+  requireToken(event)
   const crt = decodeURIComponent(getRouterParam(event, 'crt')!)
   const type = getRouterParam(event, 'type') as keyof ReturnType<typeof mockPem>
   const pem = mockPem(crt)[type]
