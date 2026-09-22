@@ -5,6 +5,9 @@
 <script>
 export default {
   name: 'BrowseCAs',
-  auth: false
 }
+</script>
+
+<script setup>
+definePageMeta({ auth: false })
 </script>

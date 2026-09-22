@@ -9,7 +9,9 @@
     "start": "node .output/server/index.mjs",
     "generate": "nuxt generate",
     "semantic-pre-release": "npx semantic-release -e ./pre-release.js --debug",
-    "semantic-release": "npx semantic-release -e ./release.js --debug"
+    "semantic-release": "npx semantic-release -e ./release.js --debug",
+    "dev:mock": "NUXT_PUBLIC_API_URL=http://localhost:3000/mock NUXT_PUBLIC_MOCK_AUTH=true nuxt dev",
+    "dev:dex": "NUXT_PUBLIC_API_URL=http://localhost:3000/mock NUXT_PUBLIC_AUTH_URL=http://localhost:5556/auth/.well-known/openid-configuration nuxt dev"
   },
   "repository": "github:dns3l/web",
   "release": {
@@ -46,7 +48,9 @@
     "daisyui": "2.37.0",
     "marked": "^4.0.18",
     "nuxt": "^4.5.2",
+    "oidc-client-ts": "^3.5.0",
     "postcss": "^8.4.4",
+    "rapidoc": "^9",
     "rehype-highlight": "^5.0.2",
     "rehype-sanitize": "^5.0.1",
     "rehype-stringify": "^9.0.3",

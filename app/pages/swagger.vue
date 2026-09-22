@@ -1,15 +1,15 @@
 <template>
-  <!--
-  https://vueschool.io/articles/vuejs-tutorials/how-to-load-third-party-scripts-in-nuxt-js/
-  https://deltener.com/blog/nuxt-third-party-code-is-poison/
-  https://javascript.info/script-async-defer
-  -->
   <div class="flex h-full py-0.5">
+    <p v-if="error" class="m-8 text-error">
+      API-Viewer konnte nicht geladen werden: {{ error }}
+    </p>
     <rapi-doc
+      v-else
       id="apiviewer"
       class="flex-1"
-      spec-url="https://raw.githubusercontent.com/dns3l/dns3l/master/openapi.yaml"
+      :spec-url="specUrl"
       show-header="false"
+      load-fonts="false"
       render-style="read"
       theme="light"
       font-size="large"
@@ -23,23 +23,28 @@
       show-components="true"
       use-path-in-nav-bar="false"
       show-method-in-nav-bar="as-colored-block"
-      regular-font="Open Sans"
-      mono-font="Roboto Mono"
+      regular-font="Open Sans, ui-sans-serif, system-ui, sans-serif"
+      mono-font="Roboto Mono, ui-monospace, monospace"
     />
   </div>
 </template>
 
-<script>
-export default {
-  name: 'ViewAPI',
-  auth: false,
-  setup () {
-    // Nuxt 4: head() gibt es nicht mehr -> useHead
-    useHead({
-      script: [
-        { src: 'https://unpkg.com/rapidoc/dist/rapidoc-min.js', type: 'module', defer: true }
-      ]
-    })
+<script setup>
+// API-Dokumentation mit RapiDoc – ohne externe Abhängigkeiten zur Laufzeit:
+// - der Viewer kommt als npm-Paket "rapidoc" aus dem eigenen Build (statt unpkg.com)
+// - die API-Beschreibung liegt unter public/openapi.yaml (statt raw.githubusercontent.com)
+// Andere Quelle per NUXT_PUBLIC_SPEC_URL möglich.
+definePageMeta({ auth: false })
+
+const specUrl = useRuntimeConfig().public.specURL
+const error = ref(null)
+
+onMounted(async () => {
+  try {
+    await import('rapidoc') // registriert das Web Component <rapi-doc>
+  } catch (e) {
+    console.error('[swagger] RapiDoc konnte nicht geladen werden', e)
+    error.value = String(e)
   }
-}
+})
 </script>

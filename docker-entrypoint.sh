@@ -81,6 +81,15 @@ export AUTH_URL=${AUTH_URL:-${BASE_URL}"/auth/.well-known/openid-configuration"}
 export CLIENT_ID=${CLIENT_ID:-"dns3l-app"}
 export DAEMON_CLIENT_ID=${DAEMON_CLIENT_ID:-"dns3ld"} # https://github.com/dns3l/dns3l-core/issues/59
 
+# Nuxt 4 liest die Runtime-Config nur aus NUXT_PUBLIC_* -> bestehende Variablen übersetzen
+export NUXT_PUBLIC_BASE_URL=${BASE_URL}
+export NUXT_PUBLIC_API_URL=${API_URL}
+export NUXT_PUBLIC_MOCK_URL=${MOCK_URL}
+export NUXT_PUBLIC_AUTH_URL=${AUTH_URL}
+export NUXT_PUBLIC_CLIENT_ID=${CLIENT_ID}
+export NUXT_PUBLIC_DAEMON_CLIENT_ID=${DAEMON_CLIENT_ID}
+if [[ -n "${VERSION:-}" ]]; then export NUXT_PUBLIC_APP_VERSION=${VERSION}; fi
+
 # Avoid destroying bootstrapping by simple start/stop
 if [[ ! -e ${DNS3LPATH}/.bootstrapped ]]; then
   ### list none idempotent code blocks, here...

@@ -31,9 +31,11 @@ export default defineNuxtConfig({
       baseURL: 'http://localhost:3000',
       apiURL: 'http://localhost:3000/api',
       mockURL: 'http://localhost:3000/mock',
-      authURL: 'http://localhost:3000/auth/.well-known/openid-configuration',
+      authURL: '', // leer = <origin>/auth/.well-known/openid-configuration (Ingress)
       clientId: 'dns3l-app',
-      daemonClientId: 'dns3ld'
+      daemonClientId: 'dns3ld',
+      mockAuth: false,
+      specURL: '/openapi.yaml' // API-Beschreibung für /swagger
     }
   }
 })

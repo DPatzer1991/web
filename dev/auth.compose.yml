@@ -1,0 +1,15 @@
+# Lokaler Dex (dns3l/auth) für die Entwicklung – ohne LDAP, mit Mock-Anmeldung.
+# Start:  docker compose -f dev/auth.compose.yml up -d
+# Dann:   yarn dev:dex
+services:
+  auth:
+    image: ghcr.io/dns3l/auth
+    container_name: dns3l-auth-dev
+    environment:
+      DEX_URL: http://localhost:5556/auth     # Issuer, so erreicht ihn der Browser
+      DNS3L_URL: http://localhost:3000        # daraus werden die Redirect-URIs
+      DNS3L_USER: certbot                     # Benutzer für "Dex Mock..." / E-Mail-Login
+      DNS3L_USERMAIL: certbot@example.com
+      DNS3L_PASS: secret
+    ports:
+      - "5556:5556"
