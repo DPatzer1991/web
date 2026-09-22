@@ -94,3 +94,8 @@ sw.*
 .devcontainer/*.env
 .devcontainer/.env
 .devcontainer/env
+
+# Tests
+/test-results/
+/playwright-report/
+/blob-report/

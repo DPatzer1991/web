@@ -14,6 +14,8 @@ import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
 
 const REDIRECT_KEY = 'auth.redirect'
 const DISCOVERY_PATH = '/.well-known/openid-configuration'
+const MOCK_KEY = 'auth.mock'
+const MOCK_USER = { name: 'Mock User', email: 'mock@example.com', groups: ['read', 'write', 'example.com'] }
 
 export default defineNuxtPlugin(async () => {
   const config = useRuntimeConfig().public
@@ -44,6 +46,12 @@ export default defineNuxtPlugin(async () => {
       sessionStorage.setItem(REDIRECT_KEY, router.currentRoute.value.fullPath)
       await router.push('/')
     }
+  }
+
+  // Mock-Login aus einem früheren Seitenaufruf wiederherstellen
+  if (mockAuth && localStorage.getItem(MOCK_KEY)) {
+    state.loggedIn = true
+    state.user = MOCK_USER
   }
 
   // ---------- OIDC (Dex) ----------
@@ -121,7 +129,8 @@ export default defineNuxtPlugin(async () => {
       sessionStorage.removeItem(REDIRECT_KEY)
       if (mockAuth) {
         state.loggedIn = true
-        state.user = { name: 'Mock User', email: 'mock@example.com', groups: ['read', 'write', 'example.com'] }
+        state.user = MOCK_USER
+        localStorage.setItem(MOCK_KEY, '1') // übersteht Reloads wie der echte Login
         if (returnTo !== router.currentRoute.value.fullPath) await router.push(returnTo)
         return
       }
@@ -139,6 +148,7 @@ export default defineNuxtPlugin(async () => {
       if (mockAuth) {
         state.loggedIn = false
         state.user = null
+        localStorage.removeItem(MOCK_KEY)
       } else {
         // Dex hat in der dns3l/auth-Konfiguration keinen end_session_endpoint
         // -> nur lokal abmelden. Falls doch vorhanden, dorthin weiterleiten.

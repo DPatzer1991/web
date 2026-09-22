@@ -27,7 +27,7 @@ export const mockCrt = (name: string, wildcard = false, from = -10, to = 80): Mo
   valid: true
 })
 
-export const mockCrts: Record<string, MockCrt[]> = {
+const initialCrts = (): Record<string, MockCrt[]> => ({
   le: [
     mockCrt('app.example.com'),
     mockCrt('api.example.com', false, -60, 30),
@@ -36,6 +36,14 @@ export const mockCrts: Record<string, MockCrt[]> = {
   step: [
     mockCrt('intern.example.org', false, -2, 88)
   ]
+})
+
+export const mockCrts: Record<string, MockCrt[]> = initialCrts()
+
+// Setzt die Mock-Daten auf den Ausgangszustand zurück (für automatisierte Tests)
+export const resetMock = () => {
+  for (const k of Object.keys(mockCrts)) delete mockCrts[k]
+  Object.assign(mockCrts, initialCrts())
 }
 
 export const trimDot = (n: string) => n.replace(/\.?$/, '')

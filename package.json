@@ -11,7 +11,11 @@
     "semantic-pre-release": "npx semantic-release -e ./pre-release.js --debug",
     "semantic-release": "npx semantic-release -e ./release.js --debug",
     "dev:mock": "NUXT_PUBLIC_API_URL=http://localhost:3000/mock NUXT_PUBLIC_MOCK_AUTH=true nuxt dev",
-    "dev:dex": "NUXT_PUBLIC_API_URL=http://localhost:3000/mock NUXT_PUBLIC_AUTH_URL=http://localhost:5556/auth/.well-known/openid-configuration nuxt dev"
+    "dev:dex": "NUXT_PUBLIC_API_URL=http://localhost:3000/mock NUXT_PUBLIC_AUTH_URL=http://localhost:5556/auth/.well-known/openid-configuration nuxt dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "nuxt build && playwright test",
+    "test:e2e:report": "playwright show-report"
   },
   "repository": "github:dns3l/web",
   "release": {
@@ -32,12 +36,17 @@
     "ci": true
   },
   "devDependencies": {
+    "@nuxt/test-utils": "^4",
     "@nuxtjs/tailwindcss": "^6.14.0",
+    "@playwright/test": "^1.56",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
+    "@vue/test-utils": "^2",
+    "happy-dom": "^20",
     "semantic-release": "^24.2.9",
     "typescript": "^5",
+    "vitest": "^5",
     "vue-tsc": "^3.3.11"
   },
   "dependencies": {
