@@ -37,6 +37,7 @@ export default defineNuxtPlugin(async () => {
   // und eine geschützte Seite verlassen.
   const endSession = async (reason: string) => {
     console.warn('[auth] Sitzung beendet:', reason)
+    useNotification().notify('Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.', 'warning', 0)
     await um?.removeUser().catch(() => {})
     apply(null)
     if (router.currentRoute.value.meta.auth !== false) {

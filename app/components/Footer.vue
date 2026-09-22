@@ -3,7 +3,7 @@
     <div class="items-center grid-flow-col">
       <p>
         <span class="font-bold">Deutsche Telekom Technik GmbH</span><br>
-        Copyright © 2022, 2023 - All rights reserved
+        Copyright © 2026 - All rights reserved
       </p>
     </div>
     <div class="grid grid-flow-col justify-self-center">
@@ -32,7 +32,6 @@
           </a>
         </div>
         <div class="col-span-3 text-xs text-center justify-self-center">
-          <!-- See notes below... -->
           <p v-if="$fetchState.pending">
             Loading....
           </p>
@@ -72,16 +71,12 @@
   </footer>
 </template>
 
-// https://nuxtjs.org/announcements/understanding-how-fetch-works-in-nuxt-2-12/
-// Important: If you are going with the great fetch approach your components
-//            SHOULD evaluate $fetchState or you are breaking CSR...
-
 <script>
 export default {
   name: 'PageFooter',
   data () {
     return {
-      data: {} // Important limitations: https://v2.vuejs.org/v2/guide/reactivity.html
+      data: {}
     }
   },
   async fetch () {
@@ -89,15 +84,5 @@ export default {
       this.$fetchHeader(this.$auth.loggedIn ? this.$auth.strategy.idToken.get() : null))
       .then(res => res.json())
   }
-  // fetchOnServer: false
-  /*
-  async fetch () {
-    this.data = await fetch('https://jsonplaceholder.typicode.com/todos')
-      .then(res => res.json())
-  }
-  async fetch () {
-    this.data = await this.$axios.$get('https://api.nuxtjs.dev/mountains')
-  }
-  */
 }
 </script>

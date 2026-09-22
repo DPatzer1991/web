@@ -7,6 +7,7 @@
 <script>
 export default {
   name: 'CertButton',
+  emits: ['claim-cert'],
   props: {
     label: {
       type: String,

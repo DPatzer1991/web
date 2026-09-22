@@ -24,6 +24,7 @@
 <script>
 export default {
   name: 'InfoMessage',
+  emits: ['info-message-closed'],
   props: {
     title: {
       type: String,

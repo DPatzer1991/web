@@ -3,10 +3,6 @@
     <div class="grid grid-cols-1 justify-items-center gap-2 m-8">
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
-          <!-- disabled until URL not provided by backend
-          <div class="prose max-w-fit" v-html="caHelp" />
-          <div class="divider" />
-          -->
           <table class="table table-compact overflow-x-auto">
             <thead>
               <tr>
@@ -174,7 +170,6 @@ export default {
       clipboard: false,
       ca: null,
       crt: null,
-      caHelpMarkdown: null,
       cas: [],
       crts: []
     }
@@ -209,9 +204,6 @@ export default {
     caIsPublic: function () { // eslint-disable-line
       return _.findWhere(this.cas, { id: this.ca }).type === 'public'
     },
-    caHelp: function () { // eslint-disable-line
-      return this.$renderMarkdown(this.caHelpMarkdown)
-    }
   },
   mounted () {
     if (navigator.clipboard) {

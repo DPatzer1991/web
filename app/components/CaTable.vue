@@ -40,7 +40,6 @@
 <script>
 export default {
   name: 'CaTable',
-  auth: false,
   data () {
     return {
       cas: []

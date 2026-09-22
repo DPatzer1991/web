@@ -35,8 +35,12 @@
       </div>
     </div>
     <div class="flex-none">
-      <Notification v-if="notification" :message="notification" />
-      <div id="notification" />
+      <Notification
+        v-if="notification.current.value"
+        :message="notification.current.value.message"
+        :type="notification.current.value.type"
+        @close="notification.clear()"
+      />
     </div>
     <div class="flex-none mr-4">
       <button v-if="$auth.loggedIn" class="btn btn-primary normal-case text-slate-50 gap-2" @click="logout">
@@ -59,10 +63,9 @@
 export default {
   name: 'PageHeader',
 
-  data () {
-    return {
-      notification: null // 'Hello world. Here is a message...'
-    }
+  setup () {
+    // App-weite Meldungen (siehe composables/useNotification.ts)
+    return { notification: useNotification() }
   },
 
   methods: {
