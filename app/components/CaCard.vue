@@ -1,5 +1,5 @@
 <template>
-  <div class="card card-side card-compact items-center bg-base-100 shadow-xl">
+  <div class="card card-side card-sm items-center bg-base-100 shadow-xl">
     <figure class="h-fit ml-4">
       <div class="avatar placeholder" :class="{ online: ca.enabled, offline: !ca.enabled }">
         <div v-if="ca.logo" :class="{ 'border-2': ca.enabled, 'border-success': ca.enabled }" class="w-16 rounded-full border border-1 bg-slate-100 p-2">

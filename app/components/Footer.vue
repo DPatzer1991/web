@@ -1,5 +1,5 @@
 <template>
-  <footer class="footer items-center p-4 bg-gray-600 text-slate-50">
+  <footer class="footer footer-horizontal items-center p-4 bg-gray-600 text-slate-50">
     <div class="items-center grid-flow-col">
       <p>
         <span class="font-bold">Deutsche Telekom Technik GmbH</span><br>

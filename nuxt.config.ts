@@ -1,11 +1,13 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import tailwindcss from '@tailwindcss/vite'
 import pkg from './package.json'
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-09-01',
   ssr: false,
   devtools: { enabled: true },
-  modules: ['@nuxtjs/tailwindcss'],
+  css: ['~/assets/css/main.css'],
+  vite: { plugins: [tailwindcss()] },
   vue: {
     compilerOptions: {
       isCustomElement: tag => tag === 'rapi-doc'

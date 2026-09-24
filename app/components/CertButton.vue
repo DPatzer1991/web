@@ -1,5 +1,5 @@
 <template>
-  <button :disabled="(! $auth.loggedIn) || loading" class="btn btn-primary normal-case text-slate-50 text-l" @click="$emit('claim-cert')">
+  <button :disabled="(! $auth.loggedIn) || loading" class="btn btn-primary normal-case text-slate-50 text-l [&[disabled]]:text-base-content/40" @click="$emit('claim-cert')">
     {{ label }}
   </button>
 </template>

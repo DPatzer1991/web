@@ -2,8 +2,8 @@
   <div v-if="!loading && !error">
     <div class="card bg-base-100 shadow-xl">
       <div class="card-body">
-        <table class="table table-compact overflow-x-auto">
-          <thead>
+        <table class="table table-sm overflow-x-auto">
+          <thead class="bg-base-200 uppercase">
             <tr>
               <td>Certificate authority</td>
               <td>% valid</td>

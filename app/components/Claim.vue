@@ -5,7 +5,7 @@
         <span v-if="isCaACME || !ca">Claim your certificate</span>
         <span v-else>Generate your CSR</span>
       </h2>
-      <div class="form-control grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-2 gap-2">
         <div class="col-span-2">
           <div class="tooltip tooltip-right" data-tip="Available CAs for issueing">
             <label class="label gap-2">
@@ -17,7 +17,7 @@
             id="ca"
             v-model="ca"
             name="ca"
-            class="select select-bordered w-full"
+            class="select w-full"
             :class="{ 'border-rose-600': errors.ca, 'border-2': errors.ca }"
           >
             <option disabled value="null">
@@ -39,7 +39,7 @@
             name="prefix"
             type="text"
             placeholder="x5c.foobar"
-            class="input input-bordered w-full"
+            class="input w-full"
             :class="{ 'border-rose-600': errors.prefix, 'border-2': errors.prefix }"
           >
         </div>
@@ -51,7 +51,7 @@
             id="rtz"
             v-model="rtz"
             name="rtz"
-            class="select select-bordered w-full"
+            class="select w-full"
             :class="{ 'border-rose-600': errors.rtz, 'border-2': errors.rtz }"
             @change="disableAutoDNS()"
           >
@@ -73,7 +73,7 @@
             name="san"
             type="text"
             placeholder="SAN, .., SAN"
-            class="input input-bordered w-full"
+            class="input w-full"
             :class="{ 'border-rose-600': errors.san, 'border-2': errors.san }"
           >
         </div>
@@ -88,7 +88,7 @@
             type="text"
             :disabled="! autodns"
             placeholder="10.1.20.3"
-            class="input input-bordered w-full"
+            class="input w-full"
             :class="{ 'border-rose-600': errors.ip, 'border-2': errors.ip }"
           >
         </div>

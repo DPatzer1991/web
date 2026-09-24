@@ -2,7 +2,7 @@
   <header class="navbar bg-[#e20074] border-b border-grey">
     <div class="indicator">
       <!-- span class="indicator-item indicator-bottom badge border-none bg-sky-600 text-amber-200">mock</span -->
-      <div class="flex-none ml-4 px-2 pb-2 rounded bg-slate-200">
+      <div class="flex-none ml-4 px-2 pb-2 rounded-sm bg-slate-200">
         <a href="/"><Logo /></a>
       </div>
     </div>
@@ -24,7 +24,7 @@
       </NuxtLink -->
       <div class="dropdown dropdown-hover">
         <label tabindex="0" class="btn btn-ghost normal-case text-slate-50 text-l">Tools</label>
-        <ul tabindex="0" class="menu dropdown-content p-2 shadow bg-base-100 rounded-box w-48">
+        <ul tabindex="0" class="menu dropdown-content p-2 shadow-sm bg-base-100 rounded-box w-48">
           <li><a href="https://crt.sh" target="_blank">crt.sh</a></li>
           <!-- div class="m-0 p-0 divider"/ -->
           <li><a href="https://jwt.io" target="_blank">jwt.io</a></li>
