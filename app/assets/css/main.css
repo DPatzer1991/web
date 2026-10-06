@@ -1,32 +1,49 @@
-/* Tailwind 4 wird in CSS konfiguriert (früher tailwind.config.js) */
+/* =========================================================
+   Tailwind CSS 4
+   ========================================================= */
+
+/* Tailwind 4 uses CSS-first configuration instead of tailwind.config.js */
 @import "tailwindcss";
 
-@plugin "@tailwindcss/typography";
-/* @tailwindcss/forms wird mit daisyUI 5 nicht mehr benötigt und würde
-   Formularelemente zurücksetzen (Rahmen und Kästchen verschwinden). */
 
-/* daisyUI 5: verfügbare Themes; mytheme ist der Standard */
+/* Additional typography styles for rich-text content */
+@plugin "@tailwindcss/typography";
+/*
+ * @tailwindcss/forms is not required.
+ * daisyUI handles the styling of form elements.
+ */
+
+ /* =========================================================
+   daisyUI
+   ========================================================= */
+
+
+/* Available daisyUI themes */
 @plugin "daisyui" {
   themes: light;
 }
 
+/* =========================================================
+   Custom Theme: mytheme
+   ========================================================= */
 @plugin "daisyui/theme" {
   name: "mytheme";
   default: true;
 
-  /* Farben wie bisher aus tailwind.config.js */
+ /* Brand Colors */
   --color-primary: #38bdf8;
   --color-secondary: #f87171;
   --color-accent: #a3e635;
   --color-neutral: #4b5563;
-  --color-base-100: #ffffff;
+
+/* Semantic Colors */
   --color-info: #3abff8;
   --color-success: #a3e635;
   --color-warning: #fbbd23;
   --color-error: #f87272;
 
-  /* daisyUI 5 leitet diese Werte nicht mehr selbst ab. Fehlen sie,
-     werden Rahmen, Kästchen und Texte transparent bzw. farblos. */
+ /* Base Colors */
+  --color-base-100: #ffffff;
   --color-base-200: #f2f2f2;
   --color-base-300: #e5e6e6;
   --color-base-content: #1f2937;
@@ -39,17 +56,26 @@
   --color-warning-content: #1f2937;
   --color-error-content: #ffffff;
 
-  /* Radien, Größen und Rahmen gehören in daisyUI 5 ebenfalls ins Theme */
+  /* Border Radius */
   --radius-selector: 0.25rem;
   --radius-field: 0.5rem;
   --radius-box: 1rem;
+   /* Component Sizes */
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
+   /* Visual Style */
   --border: 1px;
   --depth: 0;
   --noise: 0;
 }
 
-/* daisyUI 5 nutzt denselben Radius für Checkboxen und Badges.
-   Checkboxen sollen eckig bleiben, Badges rund wie bisher. */
+/* =========================================================
+   Component Overrides
+   ========================================================= */
+
+/*
+ * daisyUI uses the same selector radius for components such as
+ * checkboxes and badges. Badges should remain pill-shaped.
+ */
+
 .badge { border-radius: 9999px; }

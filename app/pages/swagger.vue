@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full py-0.5">
     <p v-if="error" class="m-8 text-error">
-      API-Viewer konnte nicht geladen werden: {{ error }}
+      API-Viewer couldn't be loaded: {{ error }}
     </p>
     <rapi-doc
       v-else
@@ -30,20 +30,38 @@
 </template>
 
 <script setup>
-// API-Dokumentation mit RapiDoc – ohne externe Abhängigkeiten zur Laufzeit:
-// - der Viewer kommt als npm-Paket "rapidoc" aus dem eigenen Build (statt unpkg.com)
-// - die API-Beschreibung liegt unter public/openapi.yaml (statt raw.githubusercontent.com)
-// Andere Quelle per NUXT_PUBLIC_SPEC_URL möglich.
+/**
+ * Public API documentation page based on RapiDoc.
+ *
+ * RapiDoc is bundled with the application through the npm package
+ * instead of being loaded from an external CDN at runtime.
+ *
+ * The OpenAPI specification is loaded from the configured `specURL`.
+ * By default, this can point to a locally hosted file such as
+ * `public/openapi.yaml`, while other environments may override the
+ * source through runtime configuration.
+ */
 definePageMeta({ auth: false })
 
+/**
+ * URL of the OpenAPI specification used by the RapiDoc viewer.
+ * The value is provided through Nuxt runtime configuration.
+ */
 const specUrl = useRuntimeConfig().public.specURL
 const error = ref(null)
 
+/**
+ * Load RapiDoc only in the browser.
+ *
+ * Importing the package registers the custom `<rapi-doc>` web component.
+ * The dynamic import inside `onMounted()` avoids loading browser-specific
+ * web-component code during server-side rendering.
+ */
 onMounted(async () => {
   try {
     await import('rapidoc') // registriert das Web Component <rapi-doc>
   } catch (e) {
-    console.error('[swagger] RapiDoc konnte nicht geladen werden', e)
+    console.error('[swagger] RapiDoc couldn\'t be loaded', e)
     error.value = String(e)
   }
 })

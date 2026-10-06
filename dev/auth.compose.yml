@@ -1,15 +1,31 @@
-# Lokaler Dex (dns3l/auth) für die Entwicklung – ohne LDAP, mit Mock-Anmeldung.
-# Start:  docker compose -f dev/auth.compose.yml up -d
-# Dann:   yarn dev:dex
+# Local Dex instance for DNS3L development.
+#
+# This setup runs the real OIDC authentication flow locally,
+# but uses a mock user instead of LDAP / Active Directory.
+#
+# Start the local Dex container with:
+#   docker compose -f dev/auth.compose.yml up -d
+#
+# Then start the frontend configured for local Dex:
+#   yarn dev:dex
 services:
   auth:
+    # DNS3L authentication image containing the local Dex setup.
     image: ghcr.io/dns3l/auth
+    # Fixed container name for easier local debugging and log access.
     container_name: dns3l-auth-dev
     environment:
-      DEX_URL: http://localhost:5556/auth     # Issuer, so erreicht ihn der Browser
-      DNS3L_URL: http://localhost:3000        # daraus werden die Redirect-URIs
+      # Public Dex issuer URL as seen by the browser.
+      # The OIDC discovery document is available below this path.
+      DEX_URL: http://localhost:5556/auth     
+      # Base URL of the local DNS3L frontend.
+      # Used to generate the allowed OIDC redirect URIs.
+      DNS3L_URL: http://localhost:3000        
+       # Local mock user used by Dex instead of LDAP / Active Directory.
+      # This allows testing the complete OIDC login flow locally.
       DNS3L_USER: certbot                     # Benutzer für "Dex Mock..." / E-Mail-Login
       DNS3L_USERMAIL: certbot@example.com
       DNS3L_PASS: secret
+    # Exposes the Dex service to the local machine.
     ports:
       - "5556:5556"

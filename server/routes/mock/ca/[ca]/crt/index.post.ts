@@ -1,4 +1,13 @@
-// POST /mock/ca/:ca/crt  -> Zertifikat "claimen"
+/**
+ * Mock implementation of the DNS3L `POST /ca/:ca/crt` endpoint.
+ *
+ * Simulates claiming a new certificate from the selected certificate authority.
+ * The request requires authentication and must contain a certificate name.
+ *
+ * Existing certificate names are rejected with HTTP 409. A short delay
+ * simulates the processing time of a real certificate authority before
+ * the generated mock certificate is stored and returned with HTTP 201.
+ */
 export default defineEventHandler(async (event) => {
   requireToken(event)
   const ca = getRouterParam(event, 'ca')!

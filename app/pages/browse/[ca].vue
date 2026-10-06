@@ -1,5 +1,9 @@
 <template>
   <div v-if="!listLoading && !error">
+    <!--
+      Certificate overview for the selected CA.
+      Displays certificate metadata, validity, PEM actions and deletion.
+    --> 
     <div class="grid grid-cols-1 justify-items-center gap-2 m-8">
       <div class="card bg-base-100 shadow-xl">
         <div class="card-body">
@@ -15,8 +19,16 @@
               </tr>
             </thead>
             <tbody>
+              <!--
+                One row per certificate.
+                Invalid or expired certificates are visually marked as inactive.
+              -->
               <tr v-for="(c, i) in crts" :key="c.name" :class="{ active: ! (c.valid && isValid(c.validTo)) }" class="hover">
                 <td>
+                  <!--
+                    Public certificates link to crt.sh for additional
+                    certificate and serial-number information.
+                  -->
                   <a v-if="caIsPublic" target="_blank" :href="'https://crt.sh/?CN=' + nameTrimDot(c.name) + '&match=LIKE'" class="whitespace-nowrap font-bold">
                     {{ nameTrimDot(c.name) }}
                   </a>
@@ -43,6 +55,10 @@
                   {{ formatDate(c.validTo) }}
                 </td>
                 <td>
+                  <!--
+                    Show the remaining certificate lifetime as a percentage
+                    of its complete validity period.
+                  -->
                   <div v-if="c.valid && isValid(c.validTo)" class="radial-progress bg-[#e20074] text-white border-4 border-[#e20074]" :style="'--size:2.5rem; --value:' + Math.round((daysLeft(c.validTo) / daysTTL(c.validFrom, c.validTo)) * 100)">
                     <b>{{ daysLeft(c.validTo) }}</b>
                   </div>
@@ -74,6 +90,10 @@
                       Fullchain
                     </button>
                   </div>
+                  <!--
+                    Download the fullchain through the authenticated API client.
+                    A plain download link would not include the required token.
+                  -->
                   <a href="#" title="Fullchain herunterladen" class="btn btn-xs btn-ghost" @click.prevent="downloadPEM(c, 'fullchain')">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-3" viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03457.03;">
                       <g><path
@@ -103,8 +123,13 @@
         </div>
       </div>
     </div>
+    <!--
+      Confirmation dialog for certificate deletion.
+      The operation may also revoke the certificate depending on the CA.
+    -->
     <div :class="{ 'modal-open': visible }" class="modal cursor-pointer">
       <div class="modal-box relative">
+       <!-- existing modal content -->
         <div class="alert alert-warning shadow-lg">
           <div>
             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
@@ -171,6 +196,18 @@ export default {
       crt: null
     }
   },
+
+    /**
+   * Load the selected CA and its certificates from the shared
+   * DNS3L data composables.
+   *
+   * The CA is taken from the current route (`/browse/:ca`).
+   * Both CA metadata and certificates use shared AsyncData state,
+   * so other components can reuse the same backend data.
+   *
+   * Unknown CA identifiers are redirected back to `/browse`
+   * after the CA list has been loaded successfully.
+   */
   setup () {
     const route = useRoute()
     const router = useRouter()
@@ -178,7 +215,10 @@ export default {
     const caList = useCaList()
     const certs = useCertificates(ca)
 
-    // unbekannte CA -> zurück zur Übersicht (wie bisher)
+  /**
+   * Redirect unknown CA identifiers back to the certificate overview
+   * after the CA list has been loaded successfully.
+   */
     watch(caList.status, (s) => {
       if (s === 'success' && !caList.data.value.some(c => c.id === ca)) router.replace('/browse')
     }, { immediate: true })
@@ -192,6 +232,13 @@ export default {
       refreshCrts: certs.refresh
     }
   },
+
+  /**
+   * Derived information about the currently selected CA.
+   *
+   * `caById` resolves the complete CA object from the shared CA list.
+   * `caIsPublic` is used to enable links to the public crt.sh service.
+   */
   computed: {
     caById: function () { // eslint-disable-line
       return _.findWhere(this.cas, { id: this.ca })
@@ -200,22 +247,52 @@ export default {
       return this.caById?.type === 'public'
     },
   },
+  /**
+   * Detect Clipboard API support after the component has been mounted
+   * in the browser. PEM copy actions stay disabled when the API
+   * is not available.
+   */
   mounted () {
     if (navigator.clipboard) {
       this.clipboard = true
     }
   },
   methods: {
+    /**
+     * Convert the decimal certificate serial number to hexadecimal.
+     * The hexadecimal value is used when linking public certificates
+     * to crt.sh.
+     */
     serialToHex: function (s) { // eslint-disable-line
       return BigInt(s).toString(16)
     },
+  /**
+     * Remove the optional trailing dot from DNS names.
+     *
+     * DNS names may be represented as fully qualified domain names
+     * ending in a dot, while URLs, filenames and external lookups
+     * normally use the name without that trailing dot.
+     */
     nameTrimDot: function (n) { // eslint-disable-line
       return n.replace(/\.?$/, '')
     },
+    /**
+     * Prepare and open the certificate deletion dialog.
+     *
+     * The selected certificate name is normalized before it is stored
+     * so the same value can later be used in the DELETE API request.
+     */
     deleteModalHandler: function (i, n) { // eslint-disable-line
       this.crt = this.nameTrimDot(n)
       this.visible = true
     },
+   /**
+     * Delete the currently selected certificate through the DNS3L API.
+     *
+     * On success the dialog is closed and the shared certificate list
+     * is refreshed. API or browser errors remain visible in the dialog
+     * so the user can inspect them.
+     */
     async deleteCert () { // eslint-disable-line
       this.message.show = false
       this.loading = true
@@ -231,12 +308,30 @@ export default {
         this.loading = false
       }
     },
+    /**
+     * Hide the currently displayed action error.
+     */
     closeAlert: function () { // eslint-disable-line
       this.message.show = false
     },
+    /**
+     * Return whether the PEM data for the selected certificate
+     * has already been loaded from the backend.
+     */
     isCertLoaded: function (i) { // eslint-disable-line
       return this.crts[i].loaded
     },
+    /**
+     * Load PEM data on demand and copy the requested PEM part
+     * to the browser clipboard.
+     *
+     * PEM data is fetched only once per certificate and cached directly
+     * on the certificate object. Later copy operations reuse the cached
+     * response instead of calling the backend again.
+     *
+     * A short `Copied!` state provides feedback after a successful
+     * clipboard operation.
+     */
     async getPEM (i, p) { // eslint-disable-line
       if (this.crts[i][p + 'Copied'] === undefined) {
         this.crts[i][p + 'Copied'] = null // https://v2.vuejs.org/v2/guide/list.html#Caveats
@@ -256,7 +351,16 @@ export default {
         useNotification().notify('PEM konnte nicht geladen werden: ' + apiErrorText(e), 'error')
       }
     },
-    // Download mit Token (ein einfacher Link würde ohne Anmeldung abgewiesen)
+   /**
+     * Download a PEM part through the authenticated API client.
+     *
+     * A normal `<a href>` download cannot be used because the DNS3L
+     * backend requires the authentication token that `$api`
+     * automatically adds to the request.
+     *
+     * The response is converted to a temporary browser Blob URL and
+     * downloaded without exposing the token in the URL.
+     */
     async downloadPEM (c, type) {
       try {
         const pem = await this.$api('/ca/' + this.ca + '/crt/' + this.nameTrimDot(c.name) + '/pem/' + type, { responseType: 'text' })
@@ -267,12 +371,29 @@ export default {
         a.click()
         URL.revokeObjectURL(url)
       } catch (e) {
-        useNotification().notify('Download fehlgeschlagen: ' + apiErrorText(e), 'error')
+        useNotification().notify('Download failed: ' + apiErrorText(e), 'error')
       }
     },
+
+    /**
+     * Format backend date values for display using the German locale.
+     *
+     * Callers may provide custom Intl date options. Otherwise both
+     * date and time are displayed with medium formatting.
+     */
     formatDate: function (d, o) { // eslint-disable-line
       return new Date(d).toLocaleString('de-DE', o ? o : { dateStyle: 'medium', timeStyle: 'medium' }) // eslint-disable-line
     },
+    /**
+     * Certificate validity helpers.
+     *
+     * `isValid` checks whether the certificate has not expired.
+     * `daysTTL` calculates the complete certificate lifetime.
+     * `daysLeft` calculates the remaining lifetime from now.
+     *
+     * The values are used to calculate the radial validity indicator
+     * displayed in the certificate table.
+     */
     isValid: function (d) { // eslint-disable-line
       return new Date(d) > Date.now() // validTo > now
     },

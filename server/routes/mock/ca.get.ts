@@ -1,4 +1,13 @@
-// Lokales Mock-Backend: GET /mock/ca
+/**
+ * Mock implementation of the DNS3L `/ca` endpoint.
+ *
+ * Returns a static list of certificate authorities for local development.
+ * The response structure mirrors the real backend API so the frontend
+ * can be developed and tested without a running DNS3L backend.
+ *
+ * Certificate counters are derived from the local mock certificate data
+ * to keep the CA overview consistent with the mocked certificate lists.
+ */
 export default defineEventHandler(() => [
   {
     id: 'le',

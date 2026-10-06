@@ -75,23 +75,6 @@ yarn dev:dex                                    # in the Dev Container
 
 Login options: *Dex Mock* (no password), *Dex Mock…* / *Email* with `certbot` / `certbot@example.com` and password `secret`.
 
-### Tests
-
-| command | what |
-| --- | --- |
-| `yarn test` | unit tests (Vitest in a Nuxt environment, `test/unit/`) |
-| `yarn test:watch` | unit tests in watch mode |
-| `yarn test:e2e` | builds the app and runs the Playwright end-to-end tests (`e2e/`) against mock backend + mock login on port 3100 |
-| `yarn playwright test` | end-to-end tests without rebuilding |
-| `yarn test:e2e:report` | open the last Playwright report |
-
-In the Dev Container (Alpine) Playwright uses the system Chromium automatically. Watch or debug tests in your host browser via port 9323:
-
-```bash
-yarn playwright test --ui --ui-host=0.0.0.0 --ui-port=9323
-```
-
-Both test suites run in GitHub Actions on every pull request and branch push (`.github/workflows/test.yml`).
 
 ### Project structure
 
