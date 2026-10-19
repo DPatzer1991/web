@@ -940,6 +940,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iconify-json/simple-icons@npm:^1.2.100":
+  version: 1.2.100
+  resolution: "@iconify-json/simple-icons@npm:1.2.100"
+  dependencies:
+    "@iconify/types": "npm:*"
+  checksum: 10c0/f2e4fcdedd60a188250793f6955c526a33f94828d6cc7aa6fb5e42358c2c34e8d44deaeb55c5cd19a4e99765620b354e86906d18cc81bdcb85dba79ba4304ed8
+  languageName: node
+  linkType: hard
+
 "@iconify/collections@npm:^1.0.727":
   version: 1.0.753
   resolution: "@iconify/collections@npm:1.0.753"
@@ -6724,6 +6733,7 @@ __metadata:
   resolution: "dns3lweb@workspace:."
   dependencies:
     "@iconify-json/lucide": "npm:^1.2.146"
+    "@iconify-json/simple-icons": "npm:^1.2.100"
     "@lavamoat/preinstall-always-fail": "npm:^2.1.1"
     "@nuxt/test-utils": "npm:^4"
     "@nuxt/ui": "npm:^4.12.0"

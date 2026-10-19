@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.146",
+    "@iconify-json/simple-icons": "^1.2.100",
     "@nuxt/test-utils": "^4",
     "@playwright/test": "^1.56",
     "@semantic-release/changelog": "^6.0.3",
