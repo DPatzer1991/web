@@ -32,12 +32,12 @@
     "ci": true
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.146",
     "@nuxt/test-utils": "^4",
     "@playwright/test": "^1.56",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^10.0.1",
-    "@tailwindcss/vite": "^4.3",
     "@vue/test-utils": "^2",
     "happy-dom": "^20",
     "semantic-release": "^24.2.9",
@@ -48,9 +48,9 @@
   },
   "dependencies": {
     "@lavamoat/preinstall-always-fail": "^2.1.1",
+    "@nuxt/ui": "^4.12.0",
     "@tailwindcss/typography": "^0.5.20",
     "autoprefixer": "^10.4.4",
-    "daisyui": "^5",
     "nuxt": "^4.5.2",
     "oidc-client-ts": "^3.5.0",
     "postcss": "^8.4.4",
