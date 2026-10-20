@@ -2,7 +2,7 @@
 
 `docker pull ghcr.io/dns3l/web`
 
-Nuxt 4 · Vue 3 · Tailwind CSS 3 · daisyUI 2 · OIDC login via [oidc-client-ts][2] against Dex ([dns3l/auth][3])
+Nuxt 4 - Vue 3 - Tailwind CSS 3 - daisyUI 2 - OIDC login via [oidc-client-ts][2] against Dex ([dns3l/auth][3])
 
 [1]: https://nuxt.com/
 [2]: https://github.com/authts/oidc-client-ts
@@ -66,7 +66,7 @@ yarn dev
 
 ### Local Dex
 
-`dev/auth.compose.yml` starts the same `ghcr.io/dns3l/auth` image as the DNS3L stack – without LDAP, with mock logins. Run it **on the host** (the Dev Container has no Docker):
+`dev/auth.compose.yml` starts the same `ghcr.io/dns3l/auth` image as the DNS3L stack – without LDAP, with mock logins. Run it **on the host**:
 
 ```bash
 docker compose -f dev/auth.compose.yml up -d   # on the host

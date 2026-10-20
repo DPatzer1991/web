@@ -1,4 +1,4 @@
-// Einheitlicher Fehlertext für Fehler aus $api (wie bisher: "404 Not Found [message]")
+// Unified error text for errors from $api (as before: "404 Not Found [message]")
 export const apiErrorText = (e: any): string => {
   if (e?.status) {
     const base = `${e.status} ${e.statusText ?? ''}`.trim()

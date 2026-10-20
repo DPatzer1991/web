@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 /**
- * Kleine Merkmal-Kachel im Footer: farbiges Icon-Quadrat,
- * daneben zwei Zeilen Text.
+* Small feature tile in the footer: colored icon square,
+* next to it two lines of text.
  */
 defineProps<{
   icon: string

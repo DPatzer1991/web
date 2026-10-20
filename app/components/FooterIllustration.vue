@@ -1,11 +1,10 @@
 <template>
-  <!-- Dekorative Skizze: Netz → Dienste → Zertifikat.
-       Rein visuell, deshalb komplett aus dem Accessibility-Baum. -->
+  <!-- Dekorative for the Network Icons in the Footer -->
   <div
     aria-hidden="true"
     class="pointer-events-none absolute right-10 top-1/2 hidden h-[220px] w-[300px] -translate-y-1/2 origin-right scale-80 xl:block"
   >
-    <!-- Globus links: das Netz -->
+    <!-- Globus left: the network -->
     <div class="absolute left-0 top-[70px] flex size-16 items-center justify-center rounded-full border border-[#D6E2F7] bg-white/80 text-[#7FA2DE]">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="9" />
@@ -15,7 +14,7 @@
       </svg>
     </div>
 
-    <!-- Zwei Dienste in der Mitte -->
+    <!-- Two Services in the Middle -->
     <div class="absolute left-[76px] top-[18px] box-border flex h-11 w-16 flex-col justify-center gap-1.5 rounded-[10px] border border-[#D6E2F7] bg-white/90 px-2.5">
       <span class="h-1 w-[70%] rounded bg-[#C9D6F0]" />
       <span class="h-1 w-[70%] rounded bg-[#C9D6F0]" />
@@ -25,12 +24,12 @@
       <span class="h-1 w-[70%] rounded bg-[#E9C3DD]" />
     </div>
 
-    <!-- Gepunktete Verbindungen -->
+    <!-- Pointed Connection -->
     <div class="absolute left-16 top-[101px] w-[110px] border-t-2 border-dotted border-[#A9BDE6]" />
     <div class="absolute left-[140px] top-10 w-10 border-t-2 border-dotted border-[#A9BDE6]" />
     <div class="absolute left-[140px] top-[162px] w-10 border-t-2 border-dotted border-[#A9BDE6]" />
 
-    <!-- Zertifikat rechts -->
+    <!-- Certificate right -->
     <div class="illu-shield absolute right-0 top-[30px] flex size-[140px] items-center justify-center rounded-full">
       <svg width="76" height="76" viewBox="0 0 24 24" fill="#FFFFFF" stroke="#2457C5" stroke-width="1.3" stroke-linejoin="round">
         <path d="M12 2.5 4 5.6v6.1c0 5 3.4 8.8 8 9.8 4.6-1 8-4.8 8-9.8V5.6z" />
