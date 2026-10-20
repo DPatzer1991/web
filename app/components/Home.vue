@@ -1,7 +1,10 @@
 <template>
   <div>
     <HeroSection />
-
+    <ProblemSolution />
+    <UseCaseGrid />
+    <StepWalkthrough />
+    
     <!-- Noch im alten Zustand, kommen Abschnitt für Abschnitt dran -->
     <div class="mx-auto flex max-w-[1280px] flex-wrap gap-8 px-4 py-12 sm:px-8">
       <HowtoUse class="h-fit flex-1" />
