@@ -51,7 +51,9 @@ let serialCounter = 1000000
  * by adding a trailing dot when necessary.
  *
  * The `from` and `to` parameters define the validity period relative
- * to the current date.
+ * to the current date. A certificate whose `to` lies in the past is
+ * marked invalid, which is how the mock produces CAs with a valid
+ * share below 100 %.
  */
 export const mockCrt = (name: string, wildcard = false, from = -10, to = 80): MockCrt => ({
   name: name.endsWith('.') ? name : name + '.',
@@ -62,24 +64,43 @@ export const mockCrt = (name: string, wildcard = false, from = -10, to = 80): Mo
   claimedBy: { name: 'Mock User', email: 'mock@example.com' },
   validFrom: iso(from),
   validTo: iso(to),
-  valid: true
+  valid: to > 0
 })
 
 /**
  * Creates the initial mock certificate store.
  *
- * Different validity periods and certificate types are intentionally
- * included so the frontend can test normal, wildcard and soon-to-expire
- * certificate states.
+ * The data mirrors the product mockup: a public CA with one certificate
+ * about to expire, an untrusted staging CA, a European CA with a single
+ * long-lived certificate and a private CA with a larger mixed inventory.
+ * Expired certificates are kept on purpose so the "% valid" indicator
+ * shows realistic values instead of a constant 100 %.
  */
 const initialCrts = (): Record<string, MockCrt[]> => ({
-  le: [
-    mockCrt('app.example.com'),
-    mockCrt('api.example.com', false, -60, 30),
-    mockCrt('example.com', true, -85, 5)
+  // 4 certificates, 3 currently valid -> 75 %
+  letsencrypt: [
+    mockCrt('example.com', true, -86, 4),            // critical: 4 days left
+    mockCrt('api.example.com', false, -61, 29),      // due: 29 days left
+    mockCrt('app.example.com', false, -10, 80),      // valid
+    mockCrt('legacy.example.com', false, -180, -12)  // expired, still on record
   ],
-  step: [
-    mockCrt('intern.example.org', false, -2, 88)
+  // 2 certificates, both valid -> 100 %
+  'letsencrypt-staging': [
+    mockCrt('ci.example.com', false, -29, 61),
+    mockCrt('test.example.com', false, -5, 85)
+  ],
+  // 1 certificate, valid -> 100 %
+  telesec: [
+    mockCrt('shop.telekom.example', false, -223, 142)
+  ],
+  // 6 certificates, 5 currently valid -> 83 %
+  internal: [
+    mockCrt('grafana.internal.example', false, -78, 12),  // due
+    mockCrt('vault.internal.example', false, -50, 40),
+    mockCrt('registry.internal.example', false, -20, 70),
+    mockCrt('ci.internal.example', true, -12, 78),
+    mockCrt('wiki.internal.example', false, -3, 87),
+    mockCrt('old.internal.example', false, -200, -30)     // expired
   ]
 })
 

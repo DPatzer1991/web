@@ -8,6 +8,7 @@
  * authentication state changes.
  */
 
+
 export interface Ca {
   id: string
   name: string
@@ -26,6 +27,7 @@ export interface RootZone {
   root: string
   autodns: string | null
   acmedns: string | null
+  ca?: string[]
 }
 
 export interface Crt {
