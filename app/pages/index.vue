@@ -2,7 +2,6 @@
  <!-- Public application start page.
     The actual page content is implemented inside the Home component. -->
   <Home />
-  <CaCardGroup />
 </template>
 
 <script>

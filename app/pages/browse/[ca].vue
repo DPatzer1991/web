@@ -1,408 +1,459 @@
 <template>
-  <div v-if="!listLoading && !error">
-    <!--
-      Certificate overview for the selected CA.
-      Displays certificate metadata, validity, PEM actions and deletion.
-    --> 
-    <div class="grid grid-cols-1 justify-items-center gap-2 m-8">
-      <div class="card bg-base-100 shadow-xl">
-        <div class="card-body">
-          <table class="table table-sm overflow-x-auto">
-            <thead class="bg-base-200 uppercase">
-              <tr>
-                <td>Certificate name</td>
-                <td>From (By)</td>
-                <td>Expires</td>
-                <td>Days left</td>
-                <td>PEM</td>
-                <td />
-              </tr>
-            </thead>
-            <tbody>
-              <!--
-                One row per certificate.
-                Invalid or expired certificates are visually marked as inactive.
-              -->
-              <tr v-for="(c, i) in crts" :key="c.name" :class="{ active: ! (c.valid && isValid(c.validTo)) }" class="hover">
-                <td>
-                  <!--
-                    Public certificates link to crt.sh for additional
-                    certificate and serial-number information.
-                  -->
-                  <a v-if="caIsPublic" target="_blank" :href="'https://crt.sh/?CN=' + nameTrimDot(c.name) + '&match=LIKE'" class="whitespace-nowrap font-bold">
-                    {{ nameTrimDot(c.name) }}
-                  </a>
-                  <span v-else class="whitespace-nowrap font-bold">
-                    {{ nameTrimDot(c.name) }}
-                  </span>
-                  <span class="whitespace-normal">
-                    <span v-if="c.wildcard" class="badge badge-sm badge-info text-slate-50">wildcard</span>
-                    <span v-if="c.renewCount > 0" class="badge badge-sm">{{ c.renewCount }}</span>
-                  </span>
-                  <br>
-                  <a v-if="caIsPublic" target="_blank" :href="'https://crt.sh/?serial=' + serialToHex(c.serial)" class="whitespace-nowrap text-xs font-light">
-                    S/N: {{ c.serial }}
-                  </a>
-                  <span v-else class="whitespace-nowrap text-xs font-light">
-                    S/N: {{ c.serial }}
-                  </span>
-                </td>
-                <td>
-                  {{ formatDate(c.claimedOn, { dateStyle: 'medium' }) }}<br>
-                  &lt;{{ c.claimedBy.email }}&gt;
-                </td>
-                <td>
-                  {{ formatDate(c.validTo) }}
-                </td>
-                <td>
-                  <!--
-                    Show the remaining certificate lifetime as a percentage
-                    of its complete validity period.
-                  -->
-                  <div v-if="c.valid && isValid(c.validTo)" class="radial-progress bg-[#e20074] text-white border-4 border-[#e20074]" :style="'--size:2.5rem; --value:' + Math.round((daysLeft(c.validTo) / daysTTL(c.validFrom, c.validTo)) * 100)">
-                    <b>{{ daysLeft(c.validTo) }}</b>
-                  </div>
-                </td>
-                <td class="whitespace-normal">
-                  <!-- Why? Didactics...
-                  <div class="indicator">
-                    <span :class="{ visible: c.certCopied, invisible: !c.certCopied }" class="indicator-item badge badge-sm">Copied!</span>
-                    <button :disabled="! clipboard" :class="{ 'btn-success': c.loaded }" class="btn btn-xs normal-case" @click="getPEM(i, 'cert')">
-                      Cert
-                    </button>
-                  </div>
-                  <div class="indicator">
-                    <span :class="{ visible: c.chainCopied, invisible: !c.chainCopied }" class="indicator-item badge badge-sm">Copied!</span>
-                    <button :disabled="! clipboard" :class="{ 'btn-success': c.loaded }" class="btn btn-xs normal-case" @click="getPEM(i, 'chain')">
-                      Chain
-                    </button>
-                  </div>
-                  -->
-                  <div class="indicator">
-                    <span :class="{ visible: c.keyCopied, invisible: !c.keyCopied }" class="indicator-item badge badge-sm">Copied!</span>
-                    <button :disabled="! clipboard" :class="{ 'btn-success': c.loaded }" class="btn btn-xs normal-case" @click="getPEM(i, 'key')">
-                      Key
-                    </button>
-                  </div>
-                  <div class="indicator">
-                    <span :class="{ visible: c.fullchainCopied, invisible: !c.fullchainCopied }" class="indicator-item badge badge-sm">Copied!</span>
-                    <button :disabled="! clipboard" :class="{ 'btn-success': c.loaded }" class="btn btn-xs normal-case" @click="getPEM(i, 'fullchain')">
-                      Fullchain
-                    </button>
-                  </div>
-                  <!--
-                    Download the fullchain through the authenticated API client.
-                    A plain download link would not include the required token.
-                  -->
-                  <a href="#" title="Fullchain herunterladen" class="btn btn-xs btn-ghost" @click.prevent="downloadPEM(c, 'fullchain')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3" viewBox="0 0 457.03 457.03" style="enable-background:new 0 0 457.03457.03;">
-                      <g><path
-                        d="M421.512,207.074l-85.795,85.767c-47.352,47.38-124.169,47.38-171.529,0c-7.46-7.439-13.296-15.821-18.421-24.465
-                           l39.864-39.861c1.895-1.911,4.235-3.006,6.471-4.296c2.756,9.416,7.567,18.33,14.972,25.736c23.648,23.667,62.128,23.634,85.762,0
-                           l85.768-85.765c23.666-23.664,23.666-62.135,0-85.781c-23.635-23.646-62.105-23.646-85.768,0l-30.499,30.532
-                           c-24.75-9.637-51.415-12.228-77.373-8.424l64.991-64.989c47.38-47.371,124.177-47.371,171.557,0
-                           C468.869,82.897,468.869,159.706,421.512,207.074z M194.708,348.104l-30.521,30.532c-23.646,23.634-62.128,23.634-85.778,0
-                           c-23.648-23.667-23.648-62.138,0-85.795l85.778-85.767c23.665-23.662,62.121-23.662,85.767,0
-                           c7.388,7.39,12.204,16.302,14.986,25.706c2.249-1.307,4.56-2.369,6.454-4.266l39.861-39.845
-                           c-5.092-8.678-10.958-17.03-18.421-24.477c-47.348-47.371-124.172-47.371-171.543,0L35.526,249.96
-                           c-47.366,47.385-47.366,124.172,0,171.553c47.371,47.356,124.177,47.356,171.547,0l65.008-65.003
-                           C246.109,360.336,219.437,357.723,194.708,348.104z"
-                      />
-                      </g>
-                    </svg>
-                  </a>
-                </td>
-                <td>
-                  <button class="btn btn-xs btn-error text-slate-50 normal-case" @click="deleteModalHandler(i, c.name)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-    <!--
-      Confirmation dialog for certificate deletion.
-      The operation may also revoke the certificate depending on the CA.
-    -->
-    <div :class="{ 'modal-open': visible }" class="modal cursor-pointer">
-      <div class="modal-box relative">
-       <!-- existing modal content -->
-        <div class="alert alert-warning shadow-lg">
-          <div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <p>
-              This action cannot be undone!
-            </p>
-          </div>
-        </div>
-        <p class="text font-semibold pt-4">
-          Are you sure you want to delete this certificate?
-        </p>
-        <p class="text-lg font-extrabold text-center text-red-600 pt-2">
-          {{ crt }}
-        </p>
-        <p class="text-xs pt-2">
-          Of course you can re-create a certificate using the same name when it was deleted.
-          In which also a new key is re-generated. Depending on CA certificate will be revoked before deletion.
-        </p>
-        <div class="modal-action">
-          <button :disabled="(! $auth.loggedIn) || loading" class="btn btn-outline btn-error" @click="deleteCert()">
-            Delete
-          </button>
-          <button :disabled="loading" for="del-modal" class="btn btn-outline btn-info normal-case" @click="visible=false; closeAlert()">
-            Cancel
-          </button>
-        </div>
-        <InfoMessage v-if="loading" :title="'Processing your request. Please wait!'" :spinner="true" class="mt-4">
-          You will be redirected to chosen CA...
-        </InfoMessage>
-        <InfoMessage
-          v-if="message.show"
-          class="basis-full grow-0 mt-4"
-          :title="message.title"
-          :alert="true"
-          :closable="true"
-          @info-message-closed="closeAlert()"
+  <section class="mx-auto flex max-w-[1280px] flex-col gap-5 px-4 py-8 sm:px-8">
+
+    <!-- Breadcrumb: the CA list is the only parent, so one level is enough -->
+    <nav class="flex items-center gap-2 text-[13px]" aria-label="Breadcrumb">
+      <NuxtLink to="/browse" class="text-[#4B5063] underline hover:text-[#2457C5]">
+        Certificate Authorities
+      </NuxtLink>
+      <span aria-hidden="true" class="text-[#9A97A6]">/</span>
+      <span class="font-bold text-[#12172B]">{{ ca?.name ?? caId }}</span>
+    </nav>
+
+    <!-- CA header. Same fields as the overview card, so both stay consistent. -->
+    <header v-if="ca" class="flex flex-col gap-2">
+      <div class="flex flex-wrap items-center gap-3">
+        <CaLogo :id="ca.id" :name="ca.name" :logo="ca.logo" />
+        <h1 class="text-[clamp(26px,3vw,34px)] font-extrabold tracking-[-0.02em] text-[#12172B]">
+          {{ ca.name }}
+        </h1>
+        <span
+          class="rounded-full px-2.5 py-0.5 text-[11px] font-bold"
+          :class="ca.type === 'private' ? 'bg-[#EDE7FB] text-[#6D43C8]' : 'bg-[#FDF0D5] text-[#9A5B1E]'"
         >
-          <span><code>{{ message.text }}</code></span>
-        </InfoMessage>
+          {{ ca.type === 'private' ? 'Private' : 'Public' }}
+        </span>
+        <span class="rounded-full bg-[#F1F0F5] px-2.5 py-0.5 text-[11px] font-bold text-[#4B5063]">
+          {{ ca.acme ? 'ACME' : 'Legacy' }}
+        </span>
+      </div>
+      <p class="text-[14.5px] text-[#4B5063]">
+        Renewal runs automatically. Certificates below {{ DUE_DAYS }} days are flagged.
+      </p>
+    </header>
+
+    <!-- Loading and error states come before the table so it never renders half-empty -->
+    <div v-if="listLoading" class="flex flex-col gap-2">
+      <div v-for="n in 4" :key="n" class="h-16 animate-pulse rounded-[12px] bg-[#F3F2F7]" />
+    </div>
+
+    <p v-else-if="error" class="rounded-[14px] border border-[#F3C9D2] bg-[#FDF2F4] px-5 py-4 text-[15px] text-[#C8364B]">
+      Could not load certificates: {{ apiErrorText(error) }}
+    </p>
+
+    <template v-else>
+      <div class="overflow-x-auto rounded-[18px] border border-[#ECE7EE] bg-white">
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-[#F0EEF4]">
+              <th class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#4B5063]">Certificate</th>
+              <th class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#4B5063]">Issued / by</th>
+              <th class="px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#4B5063]">Expires</th>
+              <th class="w-[220px] px-5 py-3.5 text-[11px] font-bold uppercase tracking-wide text-[#4B5063]">Remaining</th>
+              <th class="px-5 py-3.5 text-right text-[11px] font-bold uppercase tracking-wide text-[#4B5063]">PEM</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              v-for="c in visibleCrts"
+              :key="c.name"
+              class="border-b border-[#F4F3F7] last:border-0"
+              :class="rowTone(c)"
+            >
+              <!-- Name, flags and serial number -->
+              <td class="px-5 py-4 align-top">
+                <div class="flex flex-wrap items-center gap-2">
+                  <!--
+                    Public certificates are in the Certificate Transparency logs,
+                    so crt.sh can show the issued certificate itself. For a private
+                    CA such a link would always be a dead end.
+                  -->
+                  <a
+                    v-if="caIsPublic"
+                    :href="`https://crt.sh/?CN=${trimDot(c.name)}&match=LIKE`"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="font-mono text-[13.5px] font-bold text-[#12172B] hover:text-[#2457C5] hover:underline"
+                  >{{ trimDot(c.name) }}</a>
+                  <span v-else class="font-mono text-[13.5px] font-bold text-[#12172B]">
+                    {{ trimDot(c.name) }}
+                  </span>
+
+                  <span v-if="c.wildcard" class="rounded-full bg-[#E6EEFC] px-2 py-0.5 text-[10.5px] font-bold text-[#2457C5]">
+                    Wildcard
+                  </span>
+                  <!-- Renew count: how often DNS3L has already replaced this certificate -->
+                  <span
+                    v-if="c.renewCount > 0"
+                    class="rounded-full bg-[#F1F0F5] px-2 py-0.5 text-[10.5px] font-bold text-[#4B5063]"
+                    :title="`Renewed ${c.renewCount} times`"
+                  >↻ {{ c.renewCount }}</span>
+                </div>
+
+                <a
+                  v-if="caIsPublic"
+                  :href="`https://crt.sh/?serial=${serialToHex(c.serial)}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="mt-0.5 block font-mono text-[11.5px] text-[#4B5063] hover:underline"
+                >S/N {{ c.serial }}</a>
+                <span v-else class="mt-0.5 block font-mono text-[11.5px] text-[#4B5063]">
+                  S/N {{ c.serial }}
+                </span>
+              </td>
+
+              <!-- Who claimed it and when -->
+              <td class="px-5 py-4 align-top">
+                <span class="block text-[13.5px] text-[#12172B]">{{ formatDate(c.claimedOn) }}</span>
+                <span class="block text-[12px] text-[#4B5063]">{{ c.claimedBy?.email }}</span>
+              </td>
+
+              <td class="px-5 py-4 align-top">
+                <span class="block text-[13.5px] text-[#12172B]">{{ formatDate(c.validTo) }}</span>
+                <span class="block text-[12px] text-[#4B5063]">{{ formatTime(c.validTo) }}</span>
+              </td>
+
+              <!-- Remaining lifetime, as a number and as a share of the full period -->
+              <td class="px-5 py-4 align-top">
+                <div class="flex items-baseline justify-between gap-2">
+                  <span class="text-[14px] font-bold" :class="tone(c).text">
+                    {{ daysLeft(c) }} {{ daysLeft(c) === 1 ? 'day' : 'days' }}
+                  </span>
+                  <span class="text-[12.5px] font-bold" :class="tone(c).text">{{ tone(c).label }}</span>
+                </div>
+                <div class="mt-1.5 h-[5px] w-full overflow-hidden rounded-full bg-[#EDEBF1]">
+                  <div class="h-full rounded-full" :class="tone(c).bar" :style="{ width: remaining(c) }" />
+                </div>
+              </td>
+
+              <!-- PEM actions -->
+              <td class="px-5 py-4 align-top">
+                <div class="flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    :disabled="!clipboard"
+                    class="relative rounded-[8px] border border-[#DCD8E4] bg-white px-3 py-1.5 text-[12.5px] font-bold text-[#2B3044] hover:bg-[#FAFAFD] disabled:opacity-50"
+                    title="Copy the private key to the clipboard"
+                    @click="copyPem(c, 'key')"
+                  >
+                    {{ copied === `${c.name}:key` ? 'Copied!' : 'Key' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    :disabled="!clipboard"
+                    class="rounded-[8px] border border-[#DCD8E4] bg-white px-3 py-1.5 text-[12.5px] font-bold text-[#2B3044] hover:bg-[#FAFAFD] disabled:opacity-50"
+                    title="Copy certificate and chain to the clipboard"
+                    @click="copyPem(c, 'fullchain')"
+                  >
+                    {{ copied === `${c.name}:fullchain` ? 'Copied!' : 'Fullchain' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="rounded-[8px] border border-[#DCD8E4] bg-white p-1.5 text-[#4B5063] hover:bg-[#FAFAFD]"
+                    title="Download the full chain as a .pem file"
+                    @click="downloadPem(c, 'fullchain')"
+                  >
+                    <UIcon name="i-lucide-download" class="size-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    :disabled="!loggedIn"
+                    class="rounded-[8px] border border-[#F3C9D2] bg-white p-1.5 text-[#C8364B] hover:bg-[#FDF2F4] disabled:opacity-40"
+                    :title="loggedIn ? 'Delete this certificate' : 'Sign in to delete certificates'"
+                    @click="askDelete(c)"
+                  >
+                    <UIcon name="i-lucide-trash-2" class="size-4" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr v-if="!visibleCrts.length">
+              <td colspan="5" class="px-5 py-10 text-center text-[15px] text-[#4B5063]">
+                {{ crts.length ? 'All certificates of this CA have expired.' : 'No certificates issued by this CA yet.' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Count line plus the switch for expired entries -->
+      <p class="text-[13px] text-[#4B5063]">
+        Showing {{ visibleCrts.length }} of {{ crts.length }}
+        {{ crts.length === 1 ? 'certificate' : 'certificates' }}
+        <template v-if="expiredCount > 0">
+          – {{ expiredCount }} expired
+          <button type="button" class="font-bold text-[#2457C5] underline" @click="showExpired = !showExpired">
+            {{ showExpired ? 'hide' : 'show' }}
+          </button>
+        </template>
+      </p>
+    </template>
+
+    <!--
+      Delete confirmation. Hand-rolled rather than a library dialog so it keeps
+      working regardless of the component library in use.
+    -->
+    <div
+      v-if="pending"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#12172B]/40 px-4"
+      role="dialog"
+      aria-modal="true"
+      @click.self="cancelDelete"
+    >
+        <div class="flex w-full max-w-115 flex-col gap-4 rounded-[18px] bg-white p-6">       
+        <div class="flex items-start gap-3 rounded-[12px] bg-[#FDF0D5] px-4 py-3">
+          <span aria-hidden="true">⚠️</span>
+          <p class="text-[14px] font-bold text-[#7A4A12]">This action cannot be undone.</p>
+        </div>
+
+        <p class="text-[15px] text-[#2B3044]">Delete this certificate?</p>
+        <p class="break-all text-center font-mono text-[15px] font-bold text-[#C8364B]">{{ pending }}</p>
+
+        <p class="text-[12.5px] leading-snug text-[#4B5063]">
+          You can claim the same name again later; a new key is generated in that
+          case. Depending on the CA the certificate is revoked before deletion.
+        </p>
+
+        <p v-if="deleteError" class="rounded-[10px] bg-[#FDF2F4] px-3.5 py-2.5 font-mono text-[12.5px] text-[#C8364B]">
+          {{ deleteError }}
+        </p>
+
+        <div class="flex justify-end gap-3">
+          <UButton
+            variant="outline"
+            color="neutral"
+            :disabled="deleting"
+            class="rounded-[10px] border-[#DCD5E0] bg-white px-4 text-[#4B5063]"
+            @click="cancelDelete"
+          >
+            Cancel
+          </UButton>
+          <UButton
+            :loading="deleting"
+            :disabled="!loggedIn"
+            class="rounded-[10px] bg-[#C8364B] px-5 font-bold text-white hover:bg-[#a82c3e]"
+            @click="confirmDelete"
+          >
+            Delete
+          </UButton>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 
-<!-- nextTODO:
-  PEM Viewer
--->
+<script setup lang="ts">
+import type { Crt } from '~/composables/useDns3l'
 
-<script>
-import _ from 'underscore'
+/**
+ * Certificates issued by one certificate authority.
+ *
+ * Scope of this page
+ * ------------------
+ * This is the only place that loads a full certificate list, which is why it
+ * is also the only place that can sort and filter by expiry: the daemon offers
+ * `search`, `suffix`, `limit` and `offset`, but no sort parameter, and orders
+ * by domain name (ca/state/dbstate.go). Doing it here is correct as long as
+ * the list is fully loaded - if CAs ever grow into the thousands, this is the
+ * spot that needs server-side support, not the overview page.
+ *
+ * Both the CA metadata and the certificates come from the shared composables,
+ * so navigating here from the overview reuses data already in memory, and the
+ * mock/live decision is made in the $api plugin as everywhere else.
+ */
 
-export default {
-  name: 'CaBrowse',
-  data () {
-    return {
-      message: {
-        title: '',
-        text: '',
-        show: false
-      },
-      visible: false,
-      loading: false,
-      clipboard: false,
-      crt: null
+/** Certificates at or below this many days left are flagged as due. */
+const DUE_DAYS = 30
+/** Below this they are critical - roughly a long weekend to react. */
+const CRITICAL_DAYS = 7
+
+const route = useRoute()
+const router = useRouter()
+const { $api, $auth } = useNuxtApp()
+
+const caId = String(route.params.ca)
+
+const caList = useCaList()
+const certs = useCertificates(caId)
+
+const crts = certs.data
+const listLoading = computed(() => caList.loading.value || certs.loading.value)
+const error = computed(() => caList.error.value || certs.error.value)
+
+const ca = computed(() => caList.data.value.find(c => c.id === caId))
+const caIsPublic = computed(() => ca.value?.type !== 'private')
+const loggedIn = computed(() => !!$auth?.loggedIn)
+
+/**
+ * An unknown CA id in the URL is a dead end - send the user back to the list
+ * instead of showing an empty table. Only after the list loaded successfully,
+ * otherwise a slow request would bounce everyone out.
+ */
+watch(caList.status, (s) => {
+  if (s === 'success' && !caList.data.value.some(c => c.id === caId)) router.replace('/browse')
+}, { immediate: true })
+
+/* --- Validity helpers -------------------------------------------------- */
+
+const DAY = 24 * 60 * 60 * 1000
+const daysLeft = (c: Crt) => Math.max(0, Math.floor((+new Date(c.validTo) - Date.now()) / DAY))
+const isExpired = (c: Crt) => +new Date(c.validTo) <= Date.now()
+
+/** Remaining time as a share of this certificate's own validity period. */
+const remaining = (c: Crt) => {
+  const total = +new Date(c.validTo) - +new Date(c.validFrom)
+  const left = +new Date(c.validTo) - Date.now()
+  if (total <= 0) return '0%'
+  return `${Math.min(100, Math.max(0, (left / total) * 100))}%`
+}
+
+/**
+ * Status wording and colour, derived from the remaining days.
+ *
+ * The backend has no status field: it stores validity dates and lets clients
+ * decide what counts as urgent. The thresholds here are a UI decision and
+ * intentionally independent of the daemon's own renewal threshold
+ * (relativeLifetimeUntilRenew), which is a fraction of the lifetime rather
+ * than a fixed number of days.
+ */
+function tone(c: Crt) {
+  if (isExpired(c)) return { label: 'Expired', text: 'text-[#4B5063]', bar: 'bg-[#9A97A6]' }
+  const d = daysLeft(c)
+  if (d <= CRITICAL_DAYS) return { label: 'Critical', text: 'text-[#C8364B]', bar: 'bg-[#C8364B]' }
+  if (d <= DUE_DAYS) return { label: 'Renewal due', text: 'text-[#9A5B1E]', bar: 'bg-[#E0922B]' }
+  return { label: 'Valid', text: 'text-[#17663A]', bar: 'bg-[#2B3044]' }
+}
+
+/** Tint the whole row for the cases that need attention. */
+const rowTone = (c: Crt) =>
+  isExpired(c) ? 'bg-[#FAFAFB]' : daysLeft(c) <= CRITICAL_DAYS ? 'bg-[#FDF5F6]' : ''
+
+/* --- Listing ----------------------------------------------------------- */
+
+/**
+ * Expired certificates stay in the backend until someone deletes them, so
+ * they would otherwise clutter the list. They are hidden by default and one
+ * click away, never silently dropped.
+ */
+const showExpired = ref(false)
+
+const sorted = computed(() =>
+  [...crts.value].sort((a, b) => +new Date(a.validTo) - +new Date(b.validTo))
+)
+const expiredCount = computed(() => sorted.value.filter(isExpired).length)
+const visibleCrts = computed(() =>
+  showExpired.value ? sorted.value : sorted.value.filter(c => !isExpired(c))
+)
+
+/* --- PEM actions -------------------------------------------------------- */
+
+const clipboard = ref(false)
+onMounted(() => { clipboard.value = !!navigator.clipboard })
+
+/** Key of the button currently showing its "Copied!" state. */
+const copied = ref('')
+
+/**
+ * Copy one PEM object to the clipboard.
+ *
+ * The PEM payload is fetched once per certificate and cached on the object
+ * itself (useCertificates enables deep reactivity for exactly this), so
+ * copying key and fullchain in a row costs a single request.
+ */
+async function copyPem(c: Crt, part: 'key' | 'fullchain' | 'cert' | 'chain' | 'root') {
+  try {
+    if (!c.loaded) {
+      // Fetched once per certificate and cached on the object itself, so
+      // copying key and fullchain in a row costs a single request.
+      c.pem = await $api<Record<string, string>>(`/ca/${caId}/crt/${trimDot(c.name)}/pem`)
+      c.loaded = true
     }
-  },
 
-    /**
-   * Load the selected CA and its certificates from the shared
-   * DNS3L data composables.
-   *
-   * The CA is taken from the current route (`/browse/:ca`).
-   * Both CA metadata and certificates use shared AsyncData state,
-   * so other components can reuse the same backend data.
-   *
-   * Unknown CA identifiers are redirected back to `/browse`
-   * after the CA list has been loaded successfully.
-   */
-  setup () {
-    const route = useRoute()
-    const router = useRouter()
-    const ca = String(route.params.ca)
-    const caList = useCaList()
-    const certs = useCertificates(ca)
+    // Indexed access is `string | undefined`, and a CA may not provide every
+    // PEM object - so check instead of asserting.
+    const value = c.pem?.[part]
+    if (!value) throw new Error(`This certificate has no "${part}" PEM object.`)
 
-  /**
-   * Redirect unknown CA identifiers back to the certificate overview
-   * after the CA list has been loaded successfully.
-   */
-    watch(caList.status, (s) => {
-      if (s === 'success' && !caList.data.value.some(c => c.id === ca)) router.replace('/browse')
-    }, { immediate: true })
-
-    return {
-      ca,
-      cas: caList.data,
-      crts: certs.data,
-      listLoading: computed(() => caList.loading.value || certs.loading.value),
-      error: computed(() => caList.error.value || certs.error.value),
-      refreshCrts: certs.refresh
-    }
-  },
-
-  /**
-   * Derived information about the currently selected CA.
-   *
-   * `caById` resolves the complete CA object from the shared CA list.
-   * `caIsPublic` is used to enable links to the public crt.sh service.
-   */
-  computed: {
-    caById: function () { // eslint-disable-line
-      return _.findWhere(this.cas, { id: this.ca })
-    },
-    caIsPublic: function () { // eslint-disable-line
-      return this.caById?.type === 'public'
-    },
-  },
-  /**
-   * Detect Clipboard API support after the component has been mounted
-   * in the browser. PEM copy actions stay disabled when the API
-   * is not available.
-   */
-  mounted () {
-    if (navigator.clipboard) {
-      this.clipboard = true
-    }
-  },
-  methods: {
-    /**
-     * Convert the decimal certificate serial number to hexadecimal.
-     * The hexadecimal value is used when linking public certificates
-     * to crt.sh.
-     */
-    serialToHex: function (s) { // eslint-disable-line
-      return BigInt(s).toString(16)
-    },
-  /**
-     * Remove the optional trailing dot from DNS names.
-     *
-     * DNS names may be represented as fully qualified domain names
-     * ending in a dot, while URLs, filenames and external lookups
-     * normally use the name without that trailing dot.
-     */
-    nameTrimDot: function (n) { // eslint-disable-line
-      return n.replace(/\.?$/, '')
-    },
-    /**
-     * Prepare and open the certificate deletion dialog.
-     *
-     * The selected certificate name is normalized before it is stored
-     * so the same value can later be used in the DELETE API request.
-     */
-    deleteModalHandler: function (i, n) { // eslint-disable-line
-      this.crt = this.nameTrimDot(n)
-      this.visible = true
-    },
-   /**
-     * Delete the currently selected certificate through the DNS3L API.
-     *
-     * On success the dialog is closed and the shared certificate list
-     * is refreshed. API or browser errors remain visible in the dialog
-     * so the user can inspect them.
-     */
-    async deleteCert () { // eslint-disable-line
-      this.message.show = false
-      this.loading = true
-      try {
-        await this.$api('/ca/' + this.ca + '/crt/' + this.crt, { method: 'DELETE' })
-        this.visible = false
-        await this.refreshCrts()
-      } catch (e) {
-        this.message.title = e?.status ? 'HTTP API returned an error!' : 'Ooops... Browser returned an error!'
-        this.message.text = apiErrorText(e)
-        this.message.show = true
-      } finally {
-        this.loading = false
-      }
-    },
-    /**
-     * Hide the currently displayed action error.
-     */
-    closeAlert: function () { // eslint-disable-line
-      this.message.show = false
-    },
-    /**
-     * Return whether the PEM data for the selected certificate
-     * has already been loaded from the backend.
-     */
-    isCertLoaded: function (i) { // eslint-disable-line
-      return this.crts[i].loaded
-    },
-    /**
-     * Load PEM data on demand and copy the requested PEM part
-     * to the browser clipboard.
-     *
-     * PEM data is fetched only once per certificate and cached directly
-     * on the certificate object. Later copy operations reuse the cached
-     * response instead of calling the backend again.
-     *
-     * A short `Copied!` state provides feedback after a successful
-     * clipboard operation.
-     */
-    async getPEM (i, p) { // eslint-disable-line
-      if (this.crts[i][p + 'Copied'] === undefined) {
-        this.crts[i][p + 'Copied'] = null // https://v2.vuejs.org/v2/guide/list.html#Caveats
-      }
-      if (this.crts[i].loaded === undefined) {
-        this.crts[i].loaded = false // https://v2.vuejs.org/v2/guide/list.html#Caveats
-      }
-      try {
-        if (!this.crts[i].loaded) {
-          this.crts[i].pem = await this.$api('/ca/' + this.ca + '/crt/' + this.crts[i].name + '/pem')
-          this.crts[i].loaded = true
-        }
-        await navigator.clipboard.writeText(this.crts[i].pem[p])
-        this.crts[i][p + 'Copied'] = true
-        setTimeout(() => { this.crts[i][p + 'Copied'] = null }, 1300)
-      } catch (e) {
-        useNotification().notify('PEM konnte nicht geladen werden: ' + apiErrorText(e), 'error')
-      }
-    },
-   /**
-     * Download a PEM part through the authenticated API client.
-     *
-     * A normal `<a href>` download cannot be used because the DNS3L
-     * backend requires the authentication token that `$api`
-     * automatically adds to the request.
-     *
-     * The response is converted to a temporary browser Blob URL and
-     * downloaded without exposing the token in the URL.
-     */
-    async downloadPEM (c, type) {
-      try {
-        const pem = await this.$api('/ca/' + this.ca + '/crt/' + this.nameTrimDot(c.name) + '/pem/' + type, { responseType: 'text' })
-        const url = URL.createObjectURL(new Blob([pem], { type: 'application/x-pem-file' }))
-        const a = document.createElement('a')
-        a.href = url
-        a.download = this.nameTrimDot(c.name) + '.' + type + '.pem'
-        a.click()
-        URL.revokeObjectURL(url)
-      } catch (e) {
-        useNotification().notify('Download failed: ' + apiErrorText(e), 'error')
-      }
-    },
-
-    /**
-     * Format backend date values for display using the German locale.
-     *
-     * Callers may provide custom Intl date options. Otherwise both
-     * date and time are displayed with medium formatting.
-     */
-    formatDate: function (d, o) { // eslint-disable-line
-      return new Date(d).toLocaleString('de-DE', o ? o : { dateStyle: 'medium', timeStyle: 'medium' }) // eslint-disable-line
-    },
-    /**
-     * Certificate validity helpers.
-     *
-     * `isValid` checks whether the certificate has not expired.
-     * `daysTTL` calculates the complete certificate lifetime.
-     * `daysLeft` calculates the remaining lifetime from now.
-     *
-     * The values are used to calculate the radial validity indicator
-     * displayed in the certificate table.
-     */
-    isValid: function (d) { // eslint-disable-line
-      return new Date(d) > Date.now() // validTo > now
-    },
-    daysTTL: function (f, t) { // eslint-disable-line
-      return Math.floor((new Date(t) - new Date(f)) / 1000 / 60 / 60 / 24)
-    },
-    daysLeft: function (d) { // eslint-disable-line
-      return Math.floor((new Date(d) - Date.now()) / 1000 / 60 / 60 / 24)
-    }
+    await navigator.clipboard.writeText(value)
+    copied.value = `${c.name}:${part}`
+    setTimeout(() => { copied.value = '' }, 1300)
+  } catch (e) {
+    useNotification().notify('PEM could not be loaded: ' + apiErrorText(e), 'error')
   }
 }
+
+/**
+ * Download a PEM object as a file.
+ *
+ * A plain <a href> cannot be used: the endpoint requires the bearer token that
+ * $api adds automatically. Fetching through the client and handing the browser
+ * a temporary blob URL keeps the token out of the address bar and history.
+ */
+async function downloadPem(c: Crt, part: 'fullchain' | 'key' | 'cert' | 'chain' | 'root') {
+  try {
+    const pem = await $api(`/ca/${caId}/crt/${trimDot(c.name)}/pem/${part}`, { responseType: 'text' })
+    const url = URL.createObjectURL(new Blob([pem as string], { type: 'application/x-pem-file' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${trimDot(c.name)}.${part}.pem`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch (e) {
+    useNotification().notify('Download failed: ' + apiErrorText(e), 'error')
+  }
+}
+
+/* --- Deletion ----------------------------------------------------------- */
+
+/** Name of the certificate awaiting confirmation; empty means no dialog. */
+const pending = ref('')
+const deleting = ref(false)
+const deleteError = ref('')
+
+function askDelete(c: Crt) {
+  pending.value = trimDot(c.name)
+  deleteError.value = ''
+}
+
+function cancelDelete() {
+  if (deleting.value) return
+  pending.value = ''
+  deleteError.value = ''
+}
+
+/**
+ * Delete through the API and refresh the shared list.
+ *
+ * Errors stay inside the dialog on purpose, so the name is still on screen
+ * and the user can read what went wrong before deciding what to do.
+ */
+async function confirmDelete() {
+  deleting.value = true
+  deleteError.value = ''
+  try {
+    await $api(`/ca/${caId}/crt/${pending.value}`, { method: 'DELETE' })
+    pending.value = ''
+    await certs.refresh()
+  } catch (e) {
+    deleteError.value = apiErrorText(e)
+  } finally {
+    deleting.value = false
+  }
+}
+
+/* --- Formatting --------------------------------------------------------- */
+
+/** DNS names may be fully qualified with a trailing dot; URLs and files are not. */
+const trimDot = (n: string) => n.replace(/\.$/, '')
+
+/** Serial numbers are stored as decimals; crt.sh looks them up in hex. */
+const serialToHex = (s: string) => BigInt(s).toString(16)
+
+const formatDate = (d: string) => new Date(d).toLocaleDateString('de-DE', { dateStyle: 'medium' })
+const formatTime = (d: string) => new Date(d).toLocaleTimeString('de-DE', { timeStyle: 'medium' })
 </script>
