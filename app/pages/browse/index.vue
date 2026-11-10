@@ -1,5 +1,5 @@
 <template>
-  <CaTable class="max-w-fit h-fit mx-auto my-8"/>
+    <CaCardGroup />
 </template>
 
 <script>

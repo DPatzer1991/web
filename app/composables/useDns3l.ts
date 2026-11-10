@@ -4,10 +4,9 @@
  * Each resource uses a stable `useAsyncData` key so multiple components
  * share the same state instead of maintaining separate copies.
  *
- * User-dependent resources are refreshed automatically when the
- * authentication state changes.
+ * The key contains the active data source, so mock and live results never
+ * share a cache entry, and switching source refetches automatically.
  */
-
 
 export interface Ca {
   id: string
@@ -27,6 +26,7 @@ export interface RootZone {
   root: string
   autodns: string | null
   acmedns: string | null
+  /** CAs allowed to issue for this zone; reported by the backend as `ca`. */
   ca?: string[]
 }
 
@@ -60,67 +60,93 @@ const withLoading = <T extends { status: Ref<string> }>(r: T) =>
   Object.assign(r, { loading: computed(() => r.status.value === 'idle' || r.status.value === 'pending') })
 
 /**
- * Returns a reactive getter for the current authentication state.
- * Used by `useAsyncData` watchers to refresh user-dependent resources
- * after login or logout.
+ * Reactive getter for the active data source.
+ *
+ * It serves two purposes at once, and both matter:
+ *
+ * - It is part of every AsyncData key. Without that, mock and live results
+ *   would share one cache entry, and a company user would see demo data for a
+ *   moment right after signing in - the worst possible moment to show someone
+ *   certificates that are not theirs.
+ *
+ * - It is the watch source. Changing it (by signing in or out) invalidates the
+ *   key and triggers a refetch, so no component has to listen for auth events.
+ *
+ * This replaces the former loginState() watcher, which only reacted to the
+ * login flag and could not distinguish the two backends.
  */
-const loginState = () => {
-  const { $auth } = useNuxtApp()
-  return () => $auth.loggedIn
+const source = () => {
+  const nuxtApp = useNuxtApp()
+  return computed(() => apiSource(nuxtApp))
 }
 
 /**
  * Loads the available certificate authorities.
  *
- * Shared through the `dns3l-ca` AsyncData key and refreshed whenever
- * the authentication state changes.
+ * The response carries everything the overview page needs, including the
+ * totalValid / totalIssued counters, so a CA card never has to fetch
+ * certificates of its own.
  */
 export const useCaList = () => {
   const api = useApi()
-  return withLoading(useAsyncData('dns3l-ca', () => api<Ca[]>('/ca'), {
-    default: () => [] as Ca[],
-    watch: [loginState()]
-  }))
+  const src = source()
+  return withLoading(useAsyncData(
+    () => `dns3l-ca-${src.value}`,
+    () => api<Ca[]>('/ca'),
+    { default: () => [] as Ca[], watch: [src] }
+  ))
 }
 
 /**
  * Loads the DNS root zones available to the current user.
- * The list is refreshed after login or logout.
+ *
+ * Used by the claim form to offer valid domain suffixes. The real endpoint
+ * requires a token, so signed-out visitors see the mock zones instead.
  */
 export const useRootZones = () => {
   const api = useApi()
-  return withLoading(useAsyncData('dns3l-rtzn', () => api<RootZone[]>('/dns/rtzn'), {
-    default: () => [] as RootZone[],
-    watch: [loginState()]
-  }))
+  const src = source()
+  return withLoading(useAsyncData(
+    () => `dns3l-rtzn-${src.value}`,
+    () => api<RootZone[]>('/dns/rtzn'),
+    { default: () => [] as RootZone[], watch: [src] }
+  ))
 }
 
-
 /**
- * Loads general DNS3L backend information.
+ * Loads general DNS3L backend information (versions, contact).
+ *
+ * Shown in the footer. Keyed by source as well, so the footer does not claim
+ * a daemon version that belongs to the mock.
  */
 export const useInfo = () => {
   const api = useApi()
-  return withLoading(useAsyncData('dns3l-info', () => api<Record<string, any>>('/info'), {
-    default: () => ({}) as Record<string, any>
-  }))
+  const src = source()
+  return withLoading(useAsyncData(
+    () => `dns3l-info-${src.value}`,
+    () => api<Record<string, any>>('/info'),
+    { default: () => ({}) as Record<string, any>, watch: [src] }
+  ))
 }
-
 
 /**
  * Loads all certificates issued by the given certificate authority.
  *
- * Each CA receives its own AsyncData key, e.g.
- * `dns3l-crt-letsencrypt`.
+ * Note what the daemon does and does not offer here: it supports `search`,
+ * `suffix`, `limit` and `offset`, but no sort parameter - results come back
+ * ordered by domain name (ca/state/dbstate.go). Any ordering by expiry would
+ * have to happen in the browser over the full list, which is why the overview
+ * page deliberately does not show an expiry preview.
  *
- * Deep reactivity is enabled because certificate objects are enriched
- * with client-side state such as `pem` and `loaded`.
+ * Deep reactivity is enabled because certificate objects are enriched with
+ * client-side state such as `pem` and `loaded` on the detail page.
  */
 export const useCertificates = (ca: string) => {
   const api = useApi()
-  return withLoading(useAsyncData('dns3l-crt-' + ca, () => api<Crt[]>('/ca/' + ca + '/crt'), {
-    default: () => [] as Crt[],
-    deep: true, // Einträge werden im Frontend ergänzt (pem, loaded, …Copied)
-    watch: [loginState()]
-  }))
+  const src = source()
+  return withLoading(useAsyncData(
+    () => `dns3l-crt-${src.value}-${ca}`,
+    () => api<Crt[]>('/ca/' + ca + '/crt'),
+    { default: () => [] as Crt[], deep: true, watch: [src] }
+  ))
 }

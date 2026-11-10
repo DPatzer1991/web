@@ -1,13 +1,22 @@
 /**
  * Mock implementation of the DNS3L `/ca` endpoint.
  *
- * Returns the four certificate authorities used in the product mockup.
- * The response structure mirrors the real backend (api/v1 CAInfo), so the
- * frontend code paths are identical for mock and live data.
+ * Returns the four certificate authorities used in the product mockup: a
+ * public production CA, a staging CA, a European CA and a private internal
+ * one. The shape matches api/v1 CAInfo field by field, so the frontend takes
+ * the exact same code path for mock and live data - that is the whole point of
+ * this mock, and the reason no field here is invented.
  *
- * The counters are derived from the mock certificate store, using the same
- * rule as the daemon: a certificate counts as valid while
- * valid_start_time < now < valid_end_time.
+ * The counters are derived from the mock certificate store rather than
+ * hardcoded, using the daemon's own rule: a certificate counts as valid while
+ * valid_start_time < now < valid_end_time (ca/state/dbstate.go). This way a
+ * claim or delete through the mock immediately moves the percentage, as it
+ * would in production. The previous implementation counted every stored
+ * certificate as valid and added one to the issued count, which produced a
+ * number that looked plausible but meant nothing.
+ *
+ * Logos point at files already present in public/. An operator replacing them
+ * is covered by CaLogo's fallback chain, not by this file.
  */
 export default defineEventHandler(() => {
   const now = Date.now()
@@ -30,7 +39,7 @@ export default defineEventHandler(() => {
       type: 'public',
       acme: true,
       enabled: true,
-      logo: '/ca-logos/letsencrypt.svg',
+      logo: '/le.png',
       url: 'https://letsencrypt.org',
       roots: 'https://letsencrypt.org/certificates/',
       ...counts('letsencrypt')
@@ -42,7 +51,7 @@ export default defineEventHandler(() => {
       type: 'public',
       acme: true,
       enabled: true,
-      logo: '/ca-logos/letsencrypt.svg',
+      logo: '/le.png',
       url: 'https://letsencrypt.org/docs/staging-environment/',
       roots: '',
       ...counts('letsencrypt-staging')
@@ -54,7 +63,7 @@ export default defineEventHandler(() => {
       type: 'public',
       acme: true,
       enabled: true,
-      logo: '/ca-logos/telesec.png',
+      logo: '/t.png',
       url: 'https://www.telesec.de',
       roots: '',
       ...counts('telesec')
@@ -66,7 +75,7 @@ export default defineEventHandler(() => {
       type: 'private',
       acme: true,
       enabled: true,
-      logo: '/ca-logos/jane-doe.svg',
+      logo: '/ss.png',
       url: '',
       roots: '',
       ...counts('internal')
