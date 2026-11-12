@@ -10,12 +10,12 @@
         :href="link.to"
         target="_blank"
         rel="noopener"
-        class="text-[15px] text-[#2B3044] transition-colors hover:text-[#E2007B]"
+        class="text-[15px] text-[#2B3044] transition-colors hover:text-brand-500"
       >{{ link.label }}</a>
       <NuxtLink
         v-else
         :to="link.to"
-        class="text-[15px] text-[#2B3044] transition-colors hover:text-[#E2007B]"
+        class="text-[15px] text-[#2B3044] transition-colors hover:text-brand-500"
       >{{ link.label }}</NuxtLink>
     </template>
   </div>

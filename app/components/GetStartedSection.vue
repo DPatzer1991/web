@@ -1,5 +1,5 @@
 <template>
-  <section id="get-started" class="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-16 sm:px-8">
+  <section id="get-started" class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-16 sm:px-8">
 
     <!-- Heading -->
     <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -9,7 +9,7 @@
           Ready for your first certificate?
         </h2>
       </div>
-      <p class="max-w-[420px] text-[15px] leading-snug text-[#4B5063]">
+      <p class="max-w-105 text-[15px] leading-snug text-[#4B5063]">
         Pick one of the available CAs, claim it once, and let your
         application poll for updates and deploy renewed certs.
       </p>
@@ -48,7 +48,7 @@
 
         <!-- Loading placeholder, so the card does not jump once data arrives -->
         <div v-if="caLoading" class="flex flex-col gap-2.5">
-          <div v-for="n in 3" :key="n" class="h-[62px] animate-pulse rounded-[14px] bg-[#F3F2F7]" />
+          <div v-for="n in 3" :key="n" class="h-15.5 animate-pulse rounded-[14px] bg-[#F3F2F7]" />
         </div>
 
         <ul v-else class="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -100,7 +100,7 @@
       </div>
 
       <!-- ---------- Right: claim form ---------- -->
-      <div class="flex flex-col gap-5 rounded-[20px] border border-[#D9E2F5] bg-gradient-to-b from-white to-[#EEF2FB] p-6">
+      <div class="flex flex-col gap-5 rounded-[20px] border border-[#D9E2F5] bg-linear-to-b from-white to-[#EEF2FB] p-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h3 class="text-[20px] font-extrabold tracking-[-0.01em] text-[#12172B]">Claim your certificate</h3>
           <span v-if="selectedCa" class="rounded-full border border-[#E3E1EA] bg-white px-3.5 py-1.5 text-[13px] font-medium text-[#2B3044]">
@@ -164,7 +164,7 @@
         </div>
 
         <!-- Resulting name and the endpoint an application can poll -->
-        <div class="flex flex-col gap-3 rounded-[14px] bg-[#1E2A47] px-5 py-4 md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-3 rounded-[14px] bg-navy-800 px-5 py-4 md:flex-row md:items-center md:justify-between">
           <span class="flex flex-col gap-0.5">
             <span class="text-[11.5px] font-bold uppercase tracking-wide text-[#9FB2D8]">You will get</span>
             <span class="font-mono text-[14px] text-white">{{ fqdn || '–' }}</span>
@@ -185,7 +185,7 @@
             </UButton>
             <UButton
               :disabled="!$auth?.loggedIn || !fqdn"
-              class="rounded-[10px] bg-[#1E2A47] px-5 font-bold text-white hover:bg-[#16203a] disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
+              class="rounded-[10px] bg-navy-800 px-5 font-bold text-white hover:bg-[#16203a] disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
               @click="claim"
             >
               Get your certificate →

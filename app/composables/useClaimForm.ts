@@ -3,24 +3,20 @@ import type { MaybeRefOrGetter } from 'vue'
 /**
  * Everything needed to claim a certificate: state, validation and the request.
  *
- * Why a composable
- * ----------------
- * The claim form exists twice - as the full page under /claim and as a dialog
- * on a CA's certificate list. Both must validate identically and send the
- * identical body, so the logic lives here and the two components only differ
- * in layout. Anything that is presentation (focus, dialog open state,
- * navigation after success) deliberately stays with the component.
+ * Kept apart from the markup for one reason: the claim form exists more than
+ * once - as this page and as a dialog on a CA's certificate list - and the two
+ * must never drift apart in what they accept or what they send. Anything that
+ * is presentation (focus, navigation, dialog state) stays in the component.
  *
- * The daemon validates everything again (api/v1 CertClaimInfo) and its verdict
- * is the binding one; checking here only saves a round trip on obvious typos.
+ * The daemon validates everything again (api/v1 CertClaimInfo carries the
+ * validation tags) and its verdict is the binding one. Checking here only
+ * saves a round trip and a failed ACME order on obvious typos.
  *
- * @param initialCa  CA id to start with. Pass a ref or getter when the caller
- *                   knows the CA (the dialog on a CA page); leave it out when
- *                   the user picks one (the standalone page).
+ * @param initialCa CA id to start from. Pass a ref or getter when the caller
+ *                  knows the CA; leave it out when the user picks one.
  */
 export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
   const { $api } = useNuxtApp()
-
   const { data: rootZones, loading: zonesLoading } = useRootZones()
 
   /* --- State ----------------------------------------------------------- */
@@ -45,8 +41,8 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
    * Root zones offered for the selected CA.
    *
    * The backend reports which CAs may issue for a zone (DNSRootzoneInfo.ca).
-   * Older daemons and the mock may omit the field, in which case every zone is
-   * offered rather than none.
+   * Older daemons and the mock may omit that field, in which case every zone
+   * is offered rather than none.
    */
   const zones = computed(() => {
     const all = rootZones.value ?? []
@@ -54,7 +50,7 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
     return all.filter(z => !z.ca?.length || z.ca.includes(ca.value))
   })
 
-  // Drop a suffix the current CA cannot serve, and preselect the only option.
+  // Drop a suffix the current CA cannot serve; preselect when there is only one.
   watch(zones, (list) => {
     if (rtz.value && !list.some(z => z.root === rtz.value)) rtz.value = ''
     if (!rtz.value && list.length === 1) rtz.value = list[0]!.root
@@ -74,7 +70,7 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
     if (!ok) { autodns.value = false; ip.value = '' }
   })
 
-  /* --- Validation ------------------------------------------------------- */
+  /* --- Validation ------------------------------------------------------ */
 
   // RFC 1123 host name, optionally multi-label: "app" or "x5c.foobar".
   const HOSTNAME = /^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9-]*[A-Za-z0-9])$/
@@ -90,8 +86,8 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
    * The first unmet requirement, as one sentence.
    *
    * One message at a time beats five red fields: it says what to do next
-   * instead of what is wrong everywhere. Also used to disable the submit
-   * button, so an incomplete form cannot be sent at all.
+   * instead of what is wrong everywhere. It also gates the submit button, so
+   * an incomplete form cannot be sent at all.
    */
   const hint = computed(() => {
     if (!ca.value) return 'Choose a certificate authority'
@@ -113,11 +109,11 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
     return !Object.values(errors).some(Boolean)
   }
 
-  /* --- Preview ---------------------------------------------------------- */
+  /* --- Preview --------------------------------------------------------- */
 
   const trimDot = (n: string) => n.replace(/\.$/, '')
 
-  /** The bare name that is sent, without the wildcard marker. */
+  /** The bare name that is sent; the wildcard is a flag, not part of it. */
   const name = computed(() =>
     prefix.value && rtz.value ? `${prefix.value}.${trimDot(rtz.value)}` : ''
   )
@@ -135,18 +131,17 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
     `/api/v1/ca/${ca.value || '<ca>'}/crt/${name.value || '<name>'}/pem/fullchain`
   )
 
-  /* --- Actions ---------------------------------------------------------- */
+  /* --- Actions --------------------------------------------------------- */
 
   /**
    * Send the claim.
    *
    * Returns the claimed name on success and null on failure, so the caller
-   * decides what happens next - the page navigates to the CA, the dialog
-   * closes and refreshes the list behind it.
+   * decides what happens next - this page navigates to the CA's list, a dialog
+   * would close and refresh in place.
    *
-   * Body per api/v1 CertClaimInfo: `name` carries the bare FQDN (the wildcard
-   * is a flag, not part of the name), and `autodns` is omitted entirely rather
-   * than sent as null when it is off.
+   * Body per api/v1 CertClaimInfo. `autodns` is omitted entirely rather than
+   * sent as null when it is off, and `san` likewise when empty.
    */
   async function submit(): Promise<string | null> {
     if (!validate()) return null
@@ -171,7 +166,7 @@ export function useClaimForm(initialCa?: MaybeRefOrGetter<string>) {
     }
   }
 
-  /** Clear the inputs; the CA selection is kept, since it is the context. */
+  /** Clear the inputs. The CA selection is kept: it is the context, not input. */
   function reset() {
     prefix.value = ''
     rtz.value = zones.value.length === 1 ? zones.value[0]!.root : ''
