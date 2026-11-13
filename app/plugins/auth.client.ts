@@ -24,8 +24,12 @@
  * The ID token is later attached to DNS3L backend requests by the
  * shared API client.
  *
- * When `NUXT_PUBLIC_MOCK_AUTH=true` is configured, Dex is bypassed
- * and a local mock user is used instead.
+ * Two shortcuts bypass Dex entirely:
+ *
+ *   - `NUXT_PUBLIC_MOCK_AUTH=true` puts the whole instance into mock mode.
+ *   - The "Try demo" link (`?demo=1`) signs a single tab in as the mock user,
+ *     so visitors can look around without an account. Demo sessions live in
+ *     sessionStorage and end with the tab.
  */
 import { UserManager, WebStorageStateStore, type User } from 'oidc-client-ts'
 
@@ -91,10 +95,39 @@ export default defineNuxtPlugin(async () => {
 
   /**
    * Restore a previously persisted mock session after a page reload.
+   *
+   * A mock-auth instance keeps the flag in localStorage and survives a
+   * browser restart. A demo keeps it in sessionStorage so it ends with the
+   * tab - that is the behaviour a visitor expects from a demo.
    */
   if (mockAuth && localStorage.getItem(MOCK_KEY)) {
     state.loggedIn = true
     state.user = MOCK_USER
+  } else if (sessionStorage.getItem(MOCK_KEY)) {
+    state.loggedIn = true
+    state.user = MOCK_USER
+  }
+
+  /**
+   * Arriving through the "Try demo" link signs the visitor in right away.
+   *
+   * Without this they would land on a logged-out page and have to press
+   * "Log in" first, which makes no sense when the whole point is to look
+   * around without an account. No token is created here; the API client
+   * answers demo requests from the built-in mock.
+   */
+  if (!state.loggedIn && isDemo()) {
+    state.loggedIn = true
+    state.user = MOCK_USER
+    sessionStorage.setItem(MOCK_KEY, '1')
+  }
+
+  /**
+   * The demo flag now lives in sessionStorage, so take it out of the address
+   * bar: links copied from here should not carry the demo along.
+   */
+  if (isDemo() && new URLSearchParams(window.location.search).get('demo') === '1') {
+    window.history.replaceState(null, '', window.location.pathname + window.location.hash)
   }
 
   
@@ -137,17 +170,22 @@ export default defineNuxtPlugin(async () => {
    /** Restore an existing OIDC session when the application starts.
     * If the stored session is expired, try to renew it with the refresh token.
     * Invalid stored sessions are removed and treated as logged out.
+    *
+    * A demo session is left alone here: it carries no OIDC user, and apply()
+    * would clear the mock user set above.
     */
-    try {
-      let u = await um.getUser()
-      if (u?.expired) {
-        u = u.refresh_token ? await um.signinSilent() : null
+    if (!sessionStorage.getItem(MOCK_KEY)) {
+      try {
+        let u = await um.getUser()
+        if (u?.expired) {
+          u = u.refresh_token ? await um.signinSilent() : null
+        }
+        apply(u)
+      } catch (e) {
+        console.warn('[auth] Stored session is invalid', e)
+        await um.removeUser().catch(() => {})
+        apply(null)
       }
-      apply(u)
-    } catch (e) {
-      console.warn('[auth] Stored session is invalid', e)
-      await um.removeUser().catch(() => {})
-      apply(null)
     }
   }
 
@@ -171,7 +209,7 @@ export default defineNuxtPlugin(async () => {
     get $state () {
       return {
         loggedIn: state.loggedIn,
-        strategy: mockAuth ? 'mock' : 'dex',
+        strategy: mockAuth ? 'mock' : (sessionStorage.getItem(MOCK_KEY) ? 'demo' : 'dex'),
         user: state.user,
         expiresAt: state.oidcUser?.expires_at
           ? new Date(state.oidcUser.expires_at * 1000).toISOString()
@@ -183,6 +221,9 @@ export default defineNuxtPlugin(async () => {
    * Exposes ID, access and refresh tokens using the previous
    * auth-next structure so existing code does not need to change
    * immediately during the migration.
+   *
+   * A demo session has no tokens at all: its requests go to the built-in
+   * mock, and the API client supplies a synthetic bearer header there.
    */
     strategy: {
       idToken: { get: () => (mockAuth ? (state.loggedIn ? 'mock-id-token' : null) : state.oidcUser?.id_token ?? null) },
@@ -201,18 +242,20 @@ export default defineNuxtPlugin(async () => {
    * Starts authentication and remembers the route the user should
    * return to after login.
    *
-   * In mock mode, authentication is performed locally without
-   * contacting Dex.
+   * In mock mode and in a demo, authentication is performed locally
+   * without contacting Dex.
    */
     async loginWith (_strategy?: string, opts?: { returnTo?: string }) {
       const returnTo = opts?.returnTo
         ?? sessionStorage.getItem(REDIRECT_KEY)
         ?? router.currentRoute.value.fullPath
       sessionStorage.removeItem(REDIRECT_KEY)
-      if (mockAuth) {
+      if (mockAuth || isDemo()) {
         state.loggedIn = true
         state.user = MOCK_USER
-        localStorage.setItem(MOCK_KEY, '1') // übersteht Reloads wie der echte Login
+        // A mock-auth instance survives reloads; a demo ends with the tab.
+        if (mockAuth) localStorage.setItem(MOCK_KEY, '1')
+        else sessionStorage.setItem(MOCK_KEY, '1')
         if (returnTo !== router.currentRoute.value.fullPath) await router.push(returnTo)
         return
       }
@@ -227,6 +270,10 @@ export default defineNuxtPlugin(async () => {
    */
     async handleCallback (): Promise<string> {
       const u = await um!.signinRedirectCallback()
+      // A real sign-in ends the demo: from here on the user sees their own
+      // certificates instead of the example data.
+      endDemo()
+      sessionStorage.removeItem(MOCK_KEY)
       const s = u.state as { returnTo?: string } | undefined
       return s?.returnTo && s.returnTo !== '/login' ? s.returnTo : '/'
     },
@@ -238,10 +285,15 @@ export default defineNuxtPlugin(async () => {
    * is removed.
    */
     async logout () {
-      if (mockAuth) {
+      // A demo session exists only in this tab and never involved Dex, so it
+      // is ended locally - together with demo mode itself. Otherwise the next
+      // page load would sign the visitor straight back in.
+      if (mockAuth || sessionStorage.getItem(MOCK_KEY)) {
         state.loggedIn = false
         state.user = null
         localStorage.removeItem(MOCK_KEY)
+        sessionStorage.removeItem(MOCK_KEY)
+        endDemo()
       } else {
         // Dex hat in der dns3l/auth-Konfiguration keinen end_session_endpoint
         // -> nur lokal abmelden. Falls doch vorhanden, dorthin weiterleiten.

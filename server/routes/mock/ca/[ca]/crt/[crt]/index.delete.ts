@@ -1,7 +1,7 @@
 /**
  * Mock implementation of the DNS3L `DELETE /ca/:ca/crt/:crt` endpoint.
  *
- * Deletes a certificate from the mock certificate store.
+ * Deletes a certificate from the caller's own mock certificate store.
  * The request requires authentication and resolves both the selected CA
  * and certificate name from the route parameters.
  *
@@ -12,9 +12,10 @@
  */
 export default defineEventHandler((event) => {
   requireToken(event)
+  const crts = crtsFor(event)
   const ca = getRouterParam(event, 'ca')!
   const crt = decodeURIComponent(getRouterParam(event, 'crt')!)
-  const list = mockCrts[ca] ?? []
+  const list = crts[ca] ?? []
   const i = list.findIndex(c => trimDot(c.name) === trimDot(crt))
   if (i < 0) {
     setResponseStatus(event, 404)

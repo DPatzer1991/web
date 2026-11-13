@@ -6,10 +6,13 @@
         <h1 class="text-[clamp(30px,3.6vw,42px)] font-extrabold leading-tight tracking-[-0.02em] text-[#12172B]">
           Certificate Authorities
         </h1>
-        <p class="text-[15px] text-[#4B5063]">
+        <p class="text-[14px] text-[#4B5063]">
           {{ cas.length }} {{ cas.length === 1 ? 'CA' : 'CAs' }} configured –
           {{ publicCount }} public, {{ privateCount }} private
         </p>
+        <span v-if="demo" class="w-fit rounded-full bg-[#FDF0D5] px-3 py-1 text-[12px] font-bold text-[#9A5B1E]">
+          Demo – example data, nothing is issued
+        </span>
       </div>
       <!-- Claiming requires a session, so the shortcut only exists with one. -->
       <UButton
@@ -104,4 +107,6 @@ const visible = computed(() => {
   if (f === 'all') return cas.value
   return cas.value.filter(c => matches(c.type, f))
 })
+/** Marks the page while the visitor is trying the app without an account. */
+const demo = computed(() => isDemo())
 </script>

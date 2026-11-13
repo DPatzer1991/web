@@ -7,22 +7,21 @@
  * the exact same code path for mock and live data - that is the whole point of
  * this mock, and the reason no field here is invented.
  *
- * The counters are derived from the mock certificate store rather than
+ * The counters are derived from the caller's own certificate store rather than
  * hardcoded, using the daemon's own rule: a certificate counts as valid while
  * valid_start_time < now < valid_end_time (ca/state/dbstate.go). This way a
- * claim or delete through the mock immediately moves the percentage, as it
- * would in production. The previous implementation counted every stored
- * certificate as valid and added one to the issued count, which produced a
- * number that looked plausible but meant nothing.
+ * claim or delete through the mock immediately moves the percentage for that
+ * visitor, as it would in production, without touching anyone else's numbers.
  *
  * Logos point at files already present in public/. An operator replacing them
  * is covered by CaLogo's fallback chain, not by this file.
  */
-export default defineEventHandler(() => {
+export default defineEventHandler((event) => {
+  const crts = crtsFor(event)
   const now = Date.now()
 
   const counts = (caId: string) => {
-    const list = mockCrts[caId] ?? []
+    const list = crts[caId] ?? []
     return {
       totalIssued: list.length,
       totalValid: list.filter(

@@ -2,37 +2,58 @@ import type { NuxtApp } from '#app'
 
 export type ApiSource = 'mock' | 'live'
 
+const DEMO_KEY = 'dns3l.demo'
+
 /**
- * Single place that answers one question: should this request be served by
- * the built-in mock backend or by the real dns3l daemon?
+ * True while this tab is in demo mode.
  *
- * Why this exists at all
- * ----------------------
- * The project used to make that choice once, at process start, through the
- * NUXT_PUBLIC_API_URL environment variable (see the dev:mock script). That is
- * fine for local development but not for a deployed instance that should show
- * a populated UI to a visitor who is not signed in, and real certificates to
- * someone who is. The decision therefore has to move from "per deployment" to
- * "per request", which is what this function enables.
+ * Entered through ?demo=1 - the "Try demo" link on the login page - and kept
+ * in sessionStorage for the rest of the tab's life. Deliberately not
+ * localStorage: a demo should end when the tab closes, not stick to the
+ * machine.
+ */
+export function isDemo(): boolean {
+  if (import.meta.server) return false
+  try {
+    if (new URLSearchParams(location.search).get('demo') === '1') {
+      sessionStorage.setItem(DEMO_KEY, '1')
+    }
+    return sessionStorage.getItem(DEMO_KEY) === '1'
+  } catch {
+    // Private mode or blocked storage: fall back to the query parameter.
+    return new URLSearchParams(location.search).get('demo') === '1'
+  }
+}
+
+/**
+ * Leaves demo mode. Called when a real sign-in completes, so nobody keeps
+ * looking at invented certificates while holding a company session.
+ */
+export function endDemo() {
+  try { sessionStorage.removeItem(DEMO_KEY) } catch { /* ignore */ }
+  clearDemoSession() 
+}
+
+/**
+ * Decides which backend serves the current request.
  *
- * The three cases
- * ---------------
- * 1. mockAuth is on  -> the whole instance runs on demo data. This also covers
- *    the signed-in mock user, who holds a fake token that the real daemon
- *    would reject anyway.
- * 2. nobody signed in -> demo data. The landing page would otherwise show
- *    empty cards, because every real endpoint requires a bearer token.
- * 3. a real session   -> the real backend, with the user's ID token attached.
+ * Order matters:
+ *   1. a mock-auth instance is mock throughout
+ *   2. a demo is mock as well - and it is checked before the session, because
+ *      a demo visitor *is* signed in as the mock user and would otherwise be
+ *      sent to the live backend without a token
+ *   3. a real session goes to dns3ld with the user's bearer token
+ *   4. everyone else gets the mock, so the pages are populated instead of empty
  *
- * What this is NOT
- * ----------------
- * This is a presentation decision, never a security boundary. It runs in the
- * browser and anyone can change it. That is acceptable because the mock serves
- * invented data only, and because dns3ld authorizes every live request on its
- * own, independently of anything decided here.
+ * A real sign-in clears the demo flag (see handleCallback), so step 2 can
+ * never shadow a company session.
+ *
+ * This is a presentation decision only. The daemon authorizes every live
+ * request on its own, so nothing decided here grants access to anything.
  */
 export function apiSource(nuxtApp: NuxtApp): ApiSource {
   const cfg = useRuntimeConfig().public
   if (cfg.mockAuth) return 'mock'
+  if (isDemo()) return 'mock'
   return nuxtApp.$auth?.loggedIn ? 'live' : 'mock'
 }

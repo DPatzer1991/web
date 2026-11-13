@@ -5,12 +5,13 @@
  * the development server restarts.
  *
  * This module provides:
- * - mock certificate data
+ * - mock certificate data, isolated per demo visitor
  * - certificate generation helpers
  * - PEM generation
  * - reset support for automated tests
  * - a lightweight Bearer-token check for protected mock endpoints
  */
+import type { H3Event } from 'h3'
 
 export interface MockCrt {
   name: string
@@ -105,22 +106,52 @@ const initialCrts = (): Record<string, MockCrt[]> => ({
 })
 
 /**
- * Current in-memory certificate store grouped by certificate authority.
+ * One certificate store per demo visitor, selected by the X-Demo-Session
+ * header. Isolation matters because demo users may claim and delete, and
+ * they must not see each other's changes.
  *
- * API handlers modify this object directly when certificates are
- * created or deleted. All changes are lost when the server restarts.
+ * The store is deliberately bounded. The header is supplied by the client,
+ * so without a cap anyone could allocate memory at will by sending a new
+ * value on every request. Idle sessions expire, and once MAX_SESSIONS is
+ * reached the least recently used one is dropped: a flood then only evicts
+ * other demos instead of taking the process down.
+ *
+ * Everything is lost on a server restart, which is fine for a demo.
  */
-export const mockCrts: Record<string, MockCrt[]> = initialCrts()
+const sessions = new Map<string, { crts: Record<string, MockCrt[]>, seen: number }>()
+const TTL = 60 * 60 * 1000              // one idle hour
+const MAX_SESSIONS = 500
+const MAX_CRTS_PER_SESSION = 100        // one visitor cannot grow without bound
 
-/**
- * Restores the mock certificate store to its initial state.
- *
- * Primarily used by automated tests so each test can start with
- * predictable and identical mock data.
- */
-export const resetMock = () => {
-  for (const k of Object.keys(mockCrts)) delete mockCrts[k]
-  Object.assign(mockCrts, initialCrts())
+export const crtsFor = (event: H3Event) => {
+  const now = Date.now()
+  for (const [k, v] of sessions) if (now - v.seen > TTL) sessions.delete(k)
+
+  const id = getHeader(event, 'x-demo-session') || 'demo-shared'
+  let s = sessions.get(id)
+  if (s) {
+    // Deleted here and re-inserted below, so the Map's insertion order
+    // doubles as a least-recently-used order.
+    sessions.delete(id)
+  } else {
+    while (sessions.size >= MAX_SESSIONS) {
+      sessions.delete(sessions.keys().next().value!)
+    }
+    s = { crts: initialCrts(), seen: now }
+  }
+  s.seen = now
+  sessions.set(id, s)
+  return s.crts
+}
+
+/** True once a visitor has filled their sandbox; used to refuse further claims. */
+export const atClaimLimit = (crts: Record<string, MockCrt[]>) =>
+  Object.values(crts).reduce((n, list) => n + list.length, 0) >= MAX_CRTS_PER_SESSION
+
+/** Resets only the caller's own sandbox. */
+export const resetMock = (event: H3Event) => {
+  const id = getHeader(event, 'x-demo-session') || 'demo-shared'
+  sessions.set(id, { crts: initialCrts(), seen: Date.now() })
 }
 
 /**
