@@ -78,7 +78,7 @@
               </svg>
             </span>
             <span class="rounded-[12px] bg-[#1E2A47] px-3 py-2 text-white">
-              DNS<span class="align-super text-[10px] text-[#FF5CAE]">3L</span>
+              DNS<span class="align-super text-[10px] text-[#E20074]">3L</span>
             </span>
             <span class="flex flex-col items-center text-[11px] text-[#17663A]">
               cert

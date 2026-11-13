@@ -5,7 +5,7 @@
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div class="flex flex-col gap-2">
         <span class="text-xs font-bold uppercase tracking-wide text-[#2457C5]">
-          How it works – in the UI 🛠️
+          How it works – in the UI 
         </span>
         <h2 class="text-[clamp(26px,2.8vw,32px)] font-extrabold leading-tight tracking-[-0.02em] text-[#12172B]">
           From login to auto-renewal in 6 steps.

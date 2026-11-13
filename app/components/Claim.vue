@@ -14,6 +14,7 @@
       the form below, so the snippets are ready to copy once something is typed.
     -->
     <ClaimHowTo
+      ref="howTo"
       :ca-id="form.ca.value"
       :name="form.name.value"
       @go-to-form="scrollToForm"
@@ -302,11 +303,20 @@
         </p>
       </aside>
     </div>
+      <!-- Shown after a successful claim instead of redirecting straight away:
+         the PEM endpoint is the one thing the user needs next. -->
+    <ClaimSuccess
+      :result="created"
+      @close="created = null"
+      @browse="goToCertificates"
+      @howto="showGuide"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
 import type { Ca } from '~/composables/useDns3l'
+import type { ClaimResult } from '~/components/ClaimSuccess.vue'
 
 /**
  * Claim form for a new certificate.
@@ -405,10 +415,46 @@ onBeforeUnmount(() => clearTimeout(flashTimer))
 
 /* --- Actions ------------------------------------------------------------ */
 
+/** The finished claim; while set, the success dialog is open. */
+const created = ref<ClaimResult | null>(null)
+
+const howTo = ref<{ openStep: (n?: number) => void } | null>(null)
+
 async function send() {
+  // Read the values before the form is touched, so the dialog shows what was
+  // actually sent rather than whatever is in the fields afterwards.
+  const fqdn = form.fqdn.value
+  const sans = [...form.sanList.value]
+  const caId = form.ca.value
+  const caName = selectedCa.value?.name ?? caId
+  const caType = selectedCa.value?.type ?? ''
+
   const name = await form.submit()
-  // The new certificate is already visible in that CA's list.
-  if (name) router.push(`/browse/${form.ca.value}`)
+  if (!name) return
+
+  created.value = {
+    fqdn,
+    sans,
+    caName,
+    caType,
+    endpoint: `/api/v1/ca/${caId}/crt/${name}/pem/fullchain`
+  }
+}
+
+/** Leave for the CA's certificate list, where the new entry is visible. */
+function goToCertificates() {
+  const caId = form.ca.value
+  created.value = null
+  router.push(`/browse/${caId}`)
+}
+
+/** Stay on the page and open the usage guide at the "fetch the files" step. */
+function showGuide() {
+  created.value = null
+  howTo.value?.openStep(2)
+  nextTick(() => {
+    document.getElementById('tech-howto')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
 }
 
 function resetForm() {

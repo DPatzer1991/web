@@ -1,6 +1,5 @@
 <template>
-  <section class="overflow-hidden rounded-[16px] border border-[#ECE7EE] bg-white">
-
+  <section id="tech-howto" class="overflow-hidden rounded-[16px] border border-[#ECE7EE] bg-white">
     <!-- Collapsed by default: reference material, not a prerequisite. -->
    <button
       type="button"
@@ -275,4 +274,16 @@ mv fullchain.new fullchain.pem
 systemctl reload my-app     # or: docker kill -s HUP my-app`
   }
 ])
+
+/**
+ * Lets the page open the guide from outside, for example from the success
+ * dialog right after a claim. Defaults to step 2, which is the one that
+ * explains how to fetch the files.
+ */
+function openStep(n = 2) {
+  open.value = true
+  step.value = n
+}
+defineExpose({ openStep })
+
 </script>

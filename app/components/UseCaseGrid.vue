@@ -7,7 +7,7 @@
     <div class="flex flex-wrap items-end justify-between gap-[14px]">
       <div class="flex flex-col gap-2">
         <span class="text-[13px] font-bold uppercase tracking-[0.06em] text-[#2457C5]">
-          Who it's for 🎯
+          Who it's for 
         </span>
         <h2 class="m-0 text-[30px] font-extrabold leading-[1.1] tracking-[-0.035em] text-[#12172B]">
           Wherever your services talk <span class="text-[#2457C5]">TLS</span>.
