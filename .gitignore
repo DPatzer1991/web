@@ -103,3 +103,9 @@ sw.*
 
 # Nuxt build output
 .output
+
+.env
+.env.*
+.nuxt/
+.output/
+node_modules/

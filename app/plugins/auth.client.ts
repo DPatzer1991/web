@@ -274,8 +274,15 @@ export default defineNuxtPlugin(async () => {
       // certificates instead of the example data.
       endDemo()
       sessionStorage.removeItem(MOCK_KEY)
-      const s = u.state as { returnTo?: string } | undefined
-      return s?.returnTo && s.returnTo !== '/login' ? s.returnTo : '/'
+      //const s = u.state as { returnTo?: string } | undefined
+      //return s?.returnTo && s.returnTo !== '/login' ? s.returnTo : '/claim'
+
+      // Where the user actually wanted to go. The landing page and the
+      // callback route are not destinations - they are only where the login
+      // happened to start - so both fall through to the default.
+      const wanted = (u.state as { returnTo?: string } | undefined)?.returnTo
+      const meaningful = wanted && wanted !== '/login' && wanted !== '/'
+      return meaningful ? wanted : '/claim'
     },
   /**
    * Removes the current authentication session.

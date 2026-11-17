@@ -108,6 +108,40 @@
           </span>
         </div>
 
+        <!-- Signed-in visitors get the full form one click away. Saying so here
+             keeps them from filling this one in and then wondering where their
+             certificate went. The Claim page starts empty for now. -->
+        <div
+          v-if="$auth?.loggedIn"
+          class="flex flex-wrap items-center gap-3 rounded-[14px] border border-[#D9E2F5] bg-[#F3F7FE] px-4 py-3.5"
+        >
+          <svg class="size-5 shrink-0 text-[#2457C5]" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 11.5v5" stroke-linecap="round" />
+            <circle cx="12" cy="7.6" r=".9" fill="currentColor" stroke="none" />
+          </svg>
+
+          <span class="flex min-w-50 flex-1 flex-col">
+            <span class="text-[14.5px] font-bold text-[#12172B]">
+              You're logged in. Claim on the Claim page.
+            </span>
+            <span class="text-[12.5px] leading-snug text-[#4B5063]">
+              This form is a preview. The full form with all options and your
+              certificates is under Claim your certificate.
+            </span>
+          </span>
+
+          <UButton
+            to="/claim"
+            variant="outline"
+            color="neutral"
+            class="shrink-0 rounded-[10px] border-[#DCD5E0] bg-white px-3.5 font-bold text-[#12172B]"
+          >
+            Go to Claim your certificate →
+          </UButton>
+        </div>
+
         <div class="grid gap-4 md:grid-cols-2">
           <div class="flex flex-col gap-1.5">
             <label for="gs-prefix" class="text-[13.5px] font-bold text-[#2B3044]">FQDN prefix</label>
@@ -173,6 +207,8 @@
         </div>
 
         <div class="flex flex-wrap items-center justify-between gap-3">
+          <!-- Dropped once signed in: the notice above already says what to do,
+               and the same message twice reads like a warning. -->
           <p v-if="!$auth?.loggedIn" class="flex items-center gap-2 rounded-[10px] bg-[#FDF0D5] px-3.5 py-2 text-[13.5px] text-[#7A4A12]">
             🔒 Please log in to claim a certificate.
             <button type="button" class="font-bold underline" @click="login">Log in →</button>
@@ -183,10 +219,21 @@
             <UButton variant="outline" color="neutral" class="rounded-[10px] border-[#DCD5E0] bg-white px-4 text-[#4B5063]" @click="reset">
               Reset
             </UButton>
+
+            <!-- Signed in, the button is never locked: it only navigates, and the
+                 claim itself happens on the Claim page. Signed out it stays
+                 disabled, with the reason stated on the left. -->
             <UButton
-              :disabled="!$auth?.loggedIn || !fqdn"
-              class="rounded-[10px] bg-navy-800 px-5 font-bold text-white hover:bg-[#16203a] disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
-              @click="claim"
+              v-if="$auth?.loggedIn"
+              to="/claim"
+              class="rounded-[10px] bg-[#E20074] px-5 font-bold text-white hover:bg-[#C2005F]"
+            >
+              Continue on Claim page →
+            </UButton>
+            <UButton
+              v-else
+              disabled
+              class="rounded-[10px] bg-navy-800 px-5 font-bold text-white disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
             >
               Get your certificate →
             </UButton>
@@ -208,8 +255,9 @@ import type { Ca } from '~/composables/useDns3l'
  * to the built-in mock, with a session it goes to dns3ld with a bearer token.
  * So the same markup shows demo data to visitors and real data after login.
  *
- * The form itself never submits; it hands the values to /claim, which runs
- * the actual POST.
+ * The form never submits. It is a preview that shows what a claim looks like;
+ * signed-in users are told as much and sent to /claim, which starts empty.
+ * Carrying the entered values over is deliberately left for later.
  */
 const { $auth } = useNuxtApp()
 
@@ -289,20 +337,5 @@ function reset() {
 
 function login() {
   $auth?.loginWith('dex', { returnTo: '/claim' })
-}
-
-/** Hand the entered values over to the real claim page. */
-function claim() {
-  navigateTo({
-    path: '/claim',
-    query: {
-      ca: selected.value,
-      prefix: prefix.value,
-      suffix: suffix.value,
-      ...(sans.value ? { san: sans.value } : {}),
-      ...(wildcard.value ? { wildcard: '1' } : {}),
-      ...(autodns.value ? { autodns: '1' } : {})
-    }
-  })
 }
 </script>

@@ -19,7 +19,7 @@
       <span class="flex flex-1 flex-col gap-0.5">
         <span class="text-[14.5px] font-bold text-[#12172B]">How to use your certificate</span>
         <span class="text-[12.5px] text-[#6B7085]">
-          Fetch the PEM files, plus a Node.js web app example with auto-renewal
+          Fetch the PEM files, and let your app pick up renewals on its own
         </span>
       </span>
 

@@ -74,7 +74,7 @@ export default defineEventHandler((event) => {
       type: 'private',
       acme: true,
       enabled: true,
-      logo: '/ss.png',
+      logo: '/janedoe_logo.svg',
       url: '',
       roots: '',
       ...counts('internal')
