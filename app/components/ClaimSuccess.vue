@@ -7,13 +7,13 @@
     aria-labelledby="claim-success-title"
     @click.self="emit('close')"
   >
-    <div class="flex w-full max-w-[470px] flex-col overflow-hidden rounded-[16px] bg-white shadow-[0_32px_64px_-24px_rgba(18,23,43,0.5)]">
+    <div class="flex w-full max-w-117.5 flex-col overflow-hidden rounded-[16px] bg-white shadow-[0_32px_64px_-24px_rgba(18,23,43,0.5)]">
 
       <header class="flex items-start gap-3 px-5 pt-5">
         <!-- Outlined check: a quiet confirmation, not a celebration. -->
         <span class="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border border-[#9FD9B6]" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="#17864A" stroke-width="2.4"
-               stroke-linecap="round" stroke-linejoin="round" class="size-[13px]">
+               stroke-linecap="round" stroke-linejoin="round" class="size-3.25">
             <path d="m5 12.5 4.5 4.5L19 7" />
           </svg>
         </span>
@@ -71,7 +71,7 @@
           Show how to use it
         </UButton>
         <UButton
-          class="rounded-[9px] bg-[#E2007B] px-4 font-bold text-white hover:bg-[#c40069]"
+          class="rounded-[9px] bg-brand-500 px-4 font-bold text-white hover:bg-[#c40069]"
           @click="emit('browse')"
         >
           Go to my certificates →

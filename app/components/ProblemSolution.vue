@@ -1,9 +1,9 @@
 <template>
   <!-- Step 3 of three, the last one: dark dot, no rail below. -->
-  <div class="mx-auto grid max-w-[1280px] grid-cols-[40px_minmax(0,1fr)] gap-x-4 gap-y-0 px-[22px]">
+  <div class="mx-auto grid max-w-7xl grid-cols-[40px_minmax(0,1fr)] gap-x-4 gap-y-0 px-5.5">
 
     <div aria-hidden="true" class="flex flex-col items-center">
-      <span class="flex size-9 items-center justify-center rounded-full bg-[#1E2A47] text-[15px] font-extrabold text-white shadow-[0_0_0_4px_#E4E7EF]">3</span>
+      <span class="flex size-9 items-center justify-center rounded-full bg-navy-800 text-[15px] font-extrabold text-white shadow-[0_0_0_4px_#E4E7EF]">3</span>
     </div>
 
     <div class="flex min-w-0 flex-col gap-3">
@@ -15,9 +15,9 @@
       </div>
 
       <div class="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-0 max-md:grid-cols-1">
-        <div class="flex flex-col gap-2.5 rounded-[18px] border border-[#E5E4EC] bg-[#F7F7FA] px-4 py-[15px]">
+        <div class="flex flex-col gap-2.5 rounded-[18px] border border-[#E5E4EC] bg-[#F7F7FA] px-4 py-3.75">
           <span class="flex items-center justify-between gap-2">
-            <span class="rounded-full bg-[#F7DDE2] px-[10px] py-[3px] text-[12px] font-extrabold uppercase tracking-[0.06em] text-[#A3122B]">
+            <span class="rounded-full bg-[#F7DDE2] px-2.5 py-0.75 text-[12px] font-extrabold uppercase tracking-[0.06em] text-[#A3122B]">
               Your problem today 😩
             </span>
             <span class="text-[13px] font-bold text-[#A3122B]">⏱ hours to days</span>
@@ -33,7 +33,7 @@
         <!-- Negative margin pulls the circle onto both cards; z-1 keeps it above. -->
         <div
           aria-hidden="true"
-          class="relative z-[1] mx-[-18px] flex items-center justify-center max-md:mx-0 max-md:my-[-18px]"
+          class="relative z-1 -mx-4.5 flex items-center justify-center max-md:mx-0 max-md:-my-4.5"
         >
           <span class="flex size-11 items-center justify-center rounded-full border border-[#C9DAF7] bg-white text-[#2457C5] shadow-[0_10px_24px_-12px_rgba(36,87,197,0.5)] max-md:rotate-90">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -43,9 +43,9 @@
           </span>
         </div>
 
-        <div class="flex flex-col gap-2.5 rounded-[18px] border border-[#C9DAF7] bg-[linear-gradient(180deg,#F5F8FE_0%,#EAF0FD_100%)] px-4 py-[15px]">
+        <div class="flex flex-col gap-2.5 rounded-[18px] border border-[#C9DAF7] bg-[linear-gradient(180deg,#F5F8FE_0%,#EAF0FD_100%)] px-4 py-3.75">
           <span class="flex items-center justify-between gap-2">
-            <span class="rounded-full bg-[#1E2A47] px-[10px] py-[3px] text-[12px] font-extrabold uppercase tracking-[0.06em] text-white">
+            <span class="rounded-full bg-navy-800 px-2.5 py-0.75 text-[12px] font-extrabold uppercase tracking-[0.06em] text-white">
               With DNS3L ⚡
             </span>
             <span class="text-[13px] font-bold text-[#17663A]">⏱ under a minute</span>

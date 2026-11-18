@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 py-10 sm:px-8">
+  <section class="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-10 sm:px-8">
 
     <div class="flex flex-wrap items-start justify-between gap-4">
       <div class="flex flex-col gap-1.5">
@@ -18,7 +18,7 @@
       <UButton
         v-if="$auth?.loggedIn"
         to="/claim"
-        class="rounded-[10px] bg-[#E2007B] px-5 py-3 font-bold text-white hover:bg-[#c40069]"
+        class="rounded-[10px] bg-brand-500 px-5 py-3 font-bold text-white hover:bg-[#c40069]"
       >
         + Claim certificate
       </UButton>
@@ -46,7 +46,7 @@
 
     <!-- Skeletons keep the page height stable so nothing jumps on arrival. -->
     <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-      <div v-for="n in 4" :key="n" class="h-[300px] animate-pulse rounded-[18px] bg-[#F3F2F7]" />
+      <div v-for="n in 4" :key="n" class="h-75 animate-pulse rounded-[18px] bg-[#F3F2F7]" />
     </div>
 
     <div v-else-if="visible.length" class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">

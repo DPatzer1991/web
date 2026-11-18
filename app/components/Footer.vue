@@ -1,13 +1,13 @@
 <template>
   <footer class="px-8 pb-8">
-    <div class="mx-auto max-w-[1280px] overflow-hidden rounded-3xl border border-[#E6E1EC] bg-white shadow-[0_30px_60px_-40px_rgba(30,42,71,0.4)]">
+    <div class="mx-auto max-w-7xl overflow-hidden rounded-3xl border border-[#E6E1EC] bg-white shadow-[0_30px_60px_-40px_rgba(30,42,71,0.4)]">
 
       <!-- ── Light Footer Section ────────────────────────────── -->
       <div class="footer-glow relative">
         <!-- Watermark, for decorative purposes only -->
         <div
           aria-hidden="true"
-          class="pointer-events-none absolute -bottom-9 right-7 flex select-none items-start text-[150px] font-extrabold leading-none tracking-[-0.05em] text-[rgba(30,58,120,0.06)]"
+          class="pointer-events-none absolute -bottom-9 right-7 flex select-none items-start text-[150px] font-extrabold leading-none tracking-tighter text-[rgba(30,58,120,0.06)]"
         >
           DNS<span class="-mt-1.5 text-[80px]">3L</span>
         </div>
@@ -17,12 +17,12 @@
         <div class="relative flex flex-wrap items-start gap-12 p-10 pb-9">
 
           <!-- Brand -->
-          <div class="flex shrink basis-[340px] flex-col gap-4">
+          <div class="flex shrink basis-85 flex-col gap-4">
             <NuxtLink
               to="/"
-              class="flex w-fit items-start gap-[3px] text-[40px] font-extrabold leading-none tracking-[-0.04em] text-[#163B7A]"
+              class="flex w-fit items-start gap-0.75 text-[40px] font-extrabold leading-none tracking-[-0.04em] text-[#163B7A]"
             >
-              DNS<span class="-mt-1 text-[20px] text-[#E2007B]">3L</span>
+              DNS<span class="-mt-1 text-[20px] text-brand-500">3L</span>
             </NuxtLink>
 
             <p class="text-base leading-relaxed text-[#3A3F52]">
@@ -39,7 +39,7 @@
           <!-- Link Columns -->
           <nav
             aria-label="Footer"
-            class="grid shrink basis-[500px] grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-8"
+            class="grid shrink basis-125 grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-8"
           >
             <FooterLinkGroup title="Product" :links="productLinks" />
             <FooterLinkGroup title="Tools" :links="toolLinks" />
@@ -48,7 +48,7 @@
       </div>
 
       <!-- ── Dark Footer Section ────────────────────────────── -->
-      <div class="flex flex-wrap items-center justify-between gap-6 bg-[#1E2A47] px-10 py-6 text-[#D7DCEA]">
+      <div class="flex flex-wrap items-center justify-between gap-6 bg-navy-800 px-10 py-6 text-[#D7DCEA]">
 
         <!--Left: Owner -->
         <div class="flex flex-col gap-0.5 text-sm">
@@ -87,7 +87,7 @@
         <div class="flex flex-col items-end gap-2.5">
           <span class="inline-flex items-center gap-1.5 text-sm">
             Made with
-            <UIcon name="i-lucide-heart" class="size-4 text-[#E2007B]" />
+            <UIcon name="i-lucide-heart" class="size-4 text-brand-500" />
             by <strong class="font-bold text-white">Access 4.0</strong>
           </span>
 

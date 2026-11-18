@@ -5,7 +5,7 @@
   <section
     id="tech-problem"
     aria-labelledby="tech-problem-title"
-    class="mx-auto flex max-w-[1280px] flex-col gap-[22px] px-[22px] pt-[33px]"
+    class="mx-auto flex max-w-7xl flex-col gap-5.5 px-5.5 pt-8.25"
   >
     <div class="flex flex-col gap-2">
       <span class="text-[13px] font-bold uppercase tracking-[0.06em] text-[#2457C5]">
@@ -13,7 +13,7 @@
       </span>
       <h2
         id="tech-problem-title"
-        class="m-0 text-[clamp(23px,2.8vw,26px)] font-extrabold leading-[1.15] tracking-[-0.03em] text-[#12172B] [text-wrap:balance]"
+        class="m-0 text-[clamp(23px,2.8vw,26px)] font-extrabold leading-[1.15] tracking-[-0.03em] text-[#12172B] text-balance"
       >
         You need a certificate for your service.
         <span class="text-[#2457C5]">That should not take hours or days.</span>
@@ -24,10 +24,10 @@
       <!-- Rail: numbered dot, then a line that fills the rest of the row -->
       <div aria-hidden="true" class="flex flex-col items-center">
         <span class="flex size-9 items-center justify-center rounded-full bg-[#2457C5] text-[15px] font-extrabold text-white shadow-[0_0_0_4px_#DCE6FB]">1</span>
-        <span class="mt-2 w-[2px] flex-1 rounded-[2px] bg-[#DCE6FB]" />
+        <span class="mt-2 w-0.5 flex-1 rounded-[2px] bg-[#DCE6FB]" />
       </div>
 
-      <div class="flex min-w-0 flex-col gap-3 pb-[34px]">
+      <div class="flex min-w-0 flex-col gap-3 pb-8.5">
         <div class="flex flex-col gap-1 pt-1">
           <span class="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#6B7085]">Why mTLS</span>
           <h3 class="m-0 text-[20px] font-extrabold tracking-[-0.02em] text-[#12172B]">
@@ -45,7 +45,7 @@
           >
             <div class="flex items-center justify-between gap-2">
               <strong class="text-[15px] text-[#12172B]">{{ d.title }}</strong>
-              <span class="whitespace-nowrap rounded-full px-[9px] py-0.5 text-[11.5px] font-bold" :class="d.badgeClass">
+              <span class="whitespace-nowrap rounded-full px-2.25 py-0.5 text-[11.5px] font-bold" :class="d.badgeClass">
                 {{ d.badge }}
               </span>
             </div>
@@ -56,12 +56,12 @@
               v-html="d.svg"
             />
 
-            <span class="text-[13px] leading-[1.5] text-[#4B5063]">{{ d.text }}</span>
+            <span class="text-[13px] leading-normal text-[#4B5063]">{{ d.text }}</span>
           </div>
         </div>
 
         <!-- Footnote: where the certificates in those diagrams come from -->
-        <div class="flex flex-wrap items-center gap-x-[22px] gap-y-[14px] rounded-[16px] border border-[#C9DAF7] bg-[#F3F7FE] px-4 py-[14px]">
+        <div class="flex flex-wrap items-center gap-x-5.5 gap-y-3.5 rounded-[16px] border border-[#C9DAF7] bg-[#F3F7FE] px-4 py-3.5">
           <span class="flex-[1_1_300px] text-[14px] leading-[1.55] text-[#2B3044]">
             <strong class="text-[#12172B]">Where do these certificates come from?</strong>
             DNS3L issues one per service, delivers key and full chain from a fixed
@@ -77,7 +77,7 @@
                 <path d="M42 5H3" /><path d="m7 1-4 4 4 4" />
               </svg>
             </span>
-            <span class="rounded-[12px] bg-[#1E2A47] px-3 py-2 text-white">
+            <span class="rounded-[12px] bg-navy-800 px-3 py-2 text-white">
               DNS<span class="align-super text-[10px] text-[#E20074]">3L</span>
             </span>
             <span class="flex flex-col items-center text-[11px] text-[#17663A]">

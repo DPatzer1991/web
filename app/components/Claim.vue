@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto flex max-w-[1280px] flex-col gap-5 px-4 py-8 sm:px-8">
+  <section class="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-8 sm:px-8">
     <header class="flex flex-col gap-1">
       <h1 class="text-[clamp(26px,3.2vw,34px)] font-extrabold tracking-[-0.02em] text-[#12172B]">
         Claim a certificate
@@ -243,7 +243,7 @@
               type="submit"
               :loading="form.loading.value"
               :disabled="!loggedIn || !!form.hint.value || form.loading.value"
-              class="rounded-[9px] bg-[#1E2A47] px-4 font-bold text-white hover:bg-[#16203a] disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
+              class="rounded-[9px] bg-navy-800 px-4 font-bold text-white hover:bg-[#16203a] disabled:bg-[#D7DAE3] disabled:text-[#8A8FA0]"
             >
               Get your certificate →
             </UButton>
@@ -257,13 +257,13 @@
         <!-- Request errors stay with the form so nothing has to be retyped -->
         <div v-if="form.errorText.value" class="flex flex-col gap-1 rounded-[11px] border border-[#F3C9D2] bg-[#FDF2F4] px-4 py-3">
           <span class="text-[13px] font-bold text-[#C8364B]">The request was rejected</span>
-          <code class="break-words text-[12px] text-[#C8364B]">{{ form.errorText.value }}</code>
+          <code class="wrap-break-word text-[12px] text-[#C8364B]">{{ form.errorText.value }}</code>
         </div>
       </form>
 
       <!-- ===================== Summary ===================== -->
       <aside class="flex flex-col gap-3 self-start">
-        <div class="flex flex-col gap-4 rounded-[16px] bg-[#1E2A47] p-5">
+        <div class="flex flex-col gap-4 rounded-[16px] bg-navy-800 p-5">
           <span class="text-[10.5px] font-bold uppercase tracking-wide text-[#9FB2D8]">You will get</span>
 
           <div class="flex flex-col gap-1">

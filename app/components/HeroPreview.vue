@@ -11,7 +11,7 @@
           <span class="size-2.5 rounded-full bg-[#FEBC2E]" />
           <span class="size-2.5 rounded-full bg-[#28C840]" />
         </div>
-        <span class="mx-auto max-w-[300px] flex-1 truncate rounded-lg border border-[#E5E3EC] bg-white px-3 py-1 text-center font-mono text-[11.5px] text-[#4B5063]">
+        <span class="mx-auto max-w-75 flex-1 truncate rounded-lg border border-[#E5E3EC] bg-white px-3 py-1 text-center font-mono text-[11.5px] text-[#4B5063]">
           dns3l.example.com/ca/letsencrypt
         </span>
         <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#17864A]">
@@ -28,14 +28,14 @@
             <span class="text-[11.5px] text-[#4B5063]">{{ rows.length }} certificates</span>
           </span>
         </div>
-        <span class="rounded-[10px] bg-[#E2007B] px-3 py-2 text-xs font-bold text-white">
+        <span class="rounded-[10px] bg-brand-500 px-3 py-2 text-xs font-bold text-white">
           + New certificate
         </span>
       </div>
 
       <!-- Search -->
       <div class="px-4 pb-2">
-        <span class="flex items-center gap-2 rounded-[9px] border border-[#E5E3EC] px-2.5 py-[7px] text-[12px] text-[#8A90A3]">
+        <span class="flex items-center gap-2 rounded-[9px] border border-[#E5E3EC] px-2.5 py-1.75 text-[12px] text-[#8A90A3]">
           <UIcon name="i-lucide-search" class="size-3.5" /> Search by certificate name
         </span>
       </div>
@@ -73,7 +73,7 @@
     </div>
 
     <!-- Status -->
-    <div class="relative -mt-3 ml-4 inline-flex items-center gap-2.5 rounded-[14px] bg-[#1E2A47] px-3.5 py-2.5 text-[13px] text-white shadow-lg">
+    <div class="relative -mt-3 ml-4 inline-flex items-center gap-2.5 rounded-[14px] bg-navy-800 px-3.5 py-2.5 text-[13px] text-white shadow-lg">
       <UIcon name="i-lucide-circle-check" class="size-4 text-[#22C55E]" />
       Manage all your certificates 👍
     </div>
@@ -87,9 +87,9 @@
           <span class="size-2 rounded-full bg-[#C8CCDA]" />
         </div>
         <div class="flex items-center gap-5 p-6">
-          <span class="relative rounded-xl bg-white px-[18px] py-5 text-lg font-extrabold text-[#12172B] shadow-[0_8px_24px_-12px_rgba(30,42,71,0.5)]">
+          <span class="relative rounded-xl bg-white px-4.5 py-5 text-lg font-extrabold text-[#12172B] shadow-[0_8px_24px_-12px_rgba(30,42,71,0.5)]">
             X.509
-            <span class="absolute -bottom-2 -right-2 flex size-6 items-center justify-center rounded-full bg-[#1E2A47]">
+            <span class="absolute -bottom-2 -right-2 flex size-6 items-center justify-center rounded-full bg-navy-800">
               <UIcon name="i-lucide-check" class="size-3.5 text-white" />
             </span>
           </span>
@@ -108,7 +108,7 @@
         </span>
       </div>
 
-      <div class="flex w-[150px] flex-col justify-around gap-2.5">
+      <div class="flex w-37.5 flex-col justify-around gap-2.5">
         <span class="flex items-center gap-3 rounded-xl border border-[#E6E1EC] bg-white px-4 py-3 text-[13px] font-medium text-[#12172B]">
           <UIcon name="i-lucide-box" class="size-4 text-[#4B5063]" /> Your App
         </span>

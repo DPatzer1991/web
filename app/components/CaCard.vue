@@ -61,7 +61,7 @@
           <strong class="font-bold text-[#12172B]">{{ ca.totalValid }}</strong>
           of {{ ca.totalIssued }} currently valid
         </p>
-        <div class="h-[5px] w-full overflow-hidden rounded-full bg-[#EDEBF1]">
+        <div class="h-1.25 w-full overflow-hidden rounded-full bg-[#EDEBF1]">
           <div class="h-full rounded-full bg-[#2B3044]" :style="{ width: percentValid + '%' }" />
         </div>
         <p v-if="expiredCount > 0" class="text-[12.5px] text-[#9A5B1E]">
@@ -86,7 +86,7 @@
         :to="`/browse/${ca.id}`"
         :disabled="ca.enabled === false"
         block
-        class="rounded-[10px] bg-[#1E2A47] py-3 font-bold text-white hover:bg-[#16203a]"
+        class="rounded-[10px] bg-navy-800 py-3 font-bold text-white hover:bg-[#16203a]"
       >
         Browse {{ ca.totalIssued }} {{ ca.totalIssued === 1 ? 'certificate' : 'certificates' }} →
       </UButton>

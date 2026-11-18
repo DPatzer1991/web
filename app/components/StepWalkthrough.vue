@@ -1,5 +1,5 @@
 <template>
-  <section id="how-it-works" class="mx-auto flex max-w-[1280px] flex-col gap-7 px-4 py-16 sm:px-8">
+  <section id="how-it-works" class="mx-auto flex max-w-7xl flex-col gap-7 px-4 py-16 sm:px-8">
 
     <!-- Heading -->
     <div class="flex flex-wrap items-end justify-between gap-4">
@@ -25,14 +25,14 @@
             type="button"
             class="flex w-full items-start gap-3 rounded-[14px] px-4 py-3.5 text-left transition-colors"
             :class="i === current
-              ? 'border-2 border-[#1E2A47] bg-[#F3F7FE] shadow-[0_16px_32px_-24px_rgba(30,42,71,0.6)]'
+              ? 'border-2 border-navy-800 bg-[#F3F7FE] shadow-[0_16px_32px_-24px_rgba(30,42,71,0.6)]'
               : 'border border-[#ECE7EE] bg-white hover:bg-[#FAFAFD]'"
             :aria-current="i === current ? 'step' : undefined"
             @click="current = i"
           >
             <span
               class="flex size-7 shrink-0 items-center justify-center rounded-full text-[13px] font-bold"
-              :class="i === current ? 'bg-[#1E2A47] text-white'
+              :class="i === current ? 'bg-navy-800 text-white'
                 : i < current ? 'bg-[#DDF4E6] text-[#17663A]' : 'bg-[#E6EEFC] text-[#1A4F8A]'"
             >{{ i < current ? '✓' : i + 1 }}</span>
             <span class="flex flex-col gap-0.5">
@@ -52,7 +52,7 @@
               <span class="size-2.5 rounded-full bg-[#FEBC2E]" />
               <span class="size-2.5 rounded-full bg-[#28C840]" />
             </div>
-            <span class="mx-auto max-w-[360px] flex-1 truncate rounded-lg border border-[#E5E3EC] bg-white px-3 py-1 text-center font-mono text-[11.5px] text-[#4B5063]">
+            <span class="mx-auto max-w-90 flex-1 truncate rounded-lg border border-[#E5E3EC] bg-white px-3 py-1 text-center font-mono text-[11.5px] text-[#4B5063]">
               {{ step.url }}
             </span>
             <span class="shrink-0 text-xs font-medium text-[#4B5063]">
@@ -71,11 +71,11 @@
           >
           <div
             v-else
-            class="placeholder flex min-h-[380px] flex-col items-center justify-center gap-4 px-6 py-16 text-center"
+            class="placeholder flex min-h-95 flex-col items-center justify-center gap-4 px-6 py-16 text-center"
           >
             <span class="text-6xl" aria-hidden="true">🙂</span>
             <span class="text-xl font-extrabold text-[#12172B]">Attachments will follow</span>
-            <span class="max-w-[360px] text-[15px] leading-snug text-[#4B5063]">
+            <span class="max-w-90 text-[15px] leading-snug text-[#4B5063]">
               The Screenshot for „{{ step.title }}" is loading.
             </span>
             <span class="rounded-lg bg-white/70 px-3 py-1.5 font-mono text-xs text-[#4B5063]">
@@ -116,7 +116,7 @@
           <UButton
             v-else
             to="/claim"
-            class="rounded-[10px] bg-[#E2007B] px-5 font-bold text-white hover:bg-[#c40069]"
+            class="rounded-[10px] bg-brand-500 px-5 font-bold text-white hover:bg-[#c40069]"
           >
             Get your certificate →
           </UButton>
@@ -145,10 +145,10 @@ const missing = reactive<Record<number, boolean>>({})
 const steps = [
   {
     title: 'Log in',
-    short: 'Company account via Dex',
+    short: 'Your preferred account',
     url: 'dns3l.example.com/login',
     image: '/screens/step-1-login.webp',
-    does: 'Sign in with your company username and password. No extra user to create.',
+    does: 'Sign in with your E-Mail and password. No extra user to create.',
     solves: 'No separate accounts per tool. Access follows your company identity.'
   },
   {

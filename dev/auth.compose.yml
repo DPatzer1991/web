@@ -23,7 +23,7 @@ services:
       DNS3L_URL: http://localhost:3000        
        # Local mock user used by Dex instead of LDAP / Active Directory.
       # This allows testing the complete OIDC login flow locally.
-      DNS3L_USER: certbot                     # Benutzer für "Dex Mock..." / E-Mail-Login
+      DNS3L_USER: certbot                     # User for "Dex Mock..." / E-Mail-Login
       DNS3L_USERMAIL: certbot@example.com
       DNS3L_PASS: secret
     # Exposes the Dex service to the local machine.

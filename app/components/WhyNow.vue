@@ -1,14 +1,14 @@
 <template>
   <!-- Step 2 of three. Continues the rail from MtlsExplainer, so no padding
        above and none below beyond the step's own 34px. -->
-  <div class="mx-auto grid max-w-[1280px] grid-cols-[40px_minmax(0,1fr)] gap-x-4 gap-y-0 px-[22px]">
+  <div class="mx-auto grid max-w-7xl grid-cols-[40px_minmax(0,1fr)] gap-x-4 gap-y-0 px-5.5">
 
     <div aria-hidden="true" class="flex flex-col items-center">
       <span class="flex size-9 items-center justify-center rounded-full bg-[#2457C5] text-[15px] font-extrabold text-white shadow-[0_0_0_4px_#DCE6FB]">2</span>
-      <span class="mt-2 w-[2px] flex-1 rounded-[2px] bg-[#DCE6FB]" />
+      <span class="mt-2 w-0.5 flex-1 rounded-[2px] bg-[#DCE6FB]" />
     </div>
 
-    <div class="flex min-w-0 flex-col gap-3 pb-[34px]">
+    <div class="flex min-w-0 flex-col gap-3 pb-8.5">
       <div class="flex flex-col gap-1 pt-1">
         <span class="text-[12px] font-extrabold uppercase tracking-[0.08em] text-[#6B7085]">Why now</span>
         <h3 class="m-0 text-[20px] font-extrabold tracking-[-0.02em] text-[#12172B]">
@@ -19,12 +19,12 @@
 
       <ul
         aria-label="Why now"
-        class="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-[11px] p-0"
+        class="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(min(220px,100%),1fr))] gap-2.75 p-0"
       >
         <li
           v-for="f in facts"
           :key="f.title"
-          class="flex flex-col gap-2 rounded-[18px] border border-[#E6EAF2] bg-white p-[14px]"
+          class="flex flex-col gap-2 rounded-[18px] border border-[#E6EAF2] bg-white p-3.5"
         >
           <span
             aria-hidden="true"
@@ -41,7 +41,7 @@
           </span>
 
           <strong class="text-[15px] tracking-[-0.02em] text-[#12172B]">{{ f.title }}</strong>
-          <span class="text-[14px] leading-[1.5] text-[#4B5063]">{{ f.text }}</span>
+          <span class="text-[14px] leading-normal text-[#4B5063]">{{ f.text }}</span>
         </li>
       </ul>
     </div>

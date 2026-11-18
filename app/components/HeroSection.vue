@@ -1,9 +1,9 @@
 <template>
   <section class="hero-bg flex flex-col justify-center pb-16">
-    <div class="mx-auto grid w-full max-w-[1280px] grid-cols-[repeat(auto-fit,minmax(min(520px,100%),1fr))] gap-12 px-4 pt-6 sm:px-8 sm:pt-10">
+    <div class="mx-auto grid w-full max-w-7xl grid-cols-[repeat(auto-fit,minmax(min(520px,100%),1fr))] gap-12 px-4 pt-6 sm:px-8 sm:pt-10">
 
       <!-- ── Text column ────────────────────────────── -->
-      <div class="flex flex-col gap-[26px]">
+      <div class="flex flex-col gap-6.5">
         <div class="flex flex-wrap gap-2.5">
           <span
             v-for="tag in tags"
@@ -17,7 +17,7 @@
           <span class="text-[#2457C5]">Renewal is our job.</span>
         </h1>
 
-        <p class="max-w-[560px] text-lg leading-relaxed text-[#4B5063]">
+        <p class="max-w-140 text-lg leading-relaxed text-[#4B5063]">
           A central X.509 claiming and renewal system for air-gapped environments,
           focused on TLS and ACME via DNS-01 validation. Public ACME CAs spare you
           private root chains; a private ACME CA covers a stricter threat model.
@@ -26,7 +26,7 @@
         <div class="flex flex-wrap gap-3.5">
           <UButton
             trailing-icon="i-lucide-arrow-right"
-            class="h-13 rounded-xl bg-[#E2007B] px-[26px] text-base font-bold text-white hover:bg-[#c40069]"
+            class="h-13 rounded-xl bg-brand-500 px-6.5 text-base font-bold text-white hover:bg-[#c40069]"
             @click="claim"
           >
             Get your certificate
@@ -35,7 +35,7 @@
             to="/browse"
             variant="outline"
             color="neutral"
-            class="h-13 rounded-xl border-[#D8D4E0] bg-white px-[26px] text-base font-bold text-[#12172B]"
+            class="h-13 rounded-xl border-[#D8D4E0] bg-white px-6.5 text-base font-bold text-[#12172B]"
           >
             Browse CAs
           </UButton>

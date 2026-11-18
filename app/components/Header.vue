@@ -1,6 +1,6 @@
 <template>
   <header class="sticky top-0 z-20 border-b border-[#ECE7EE] bg-white/90 backdrop-blur-[10px]">
-    <div class="mx-auto flex min-h-16 max-w-[1280px] items-center justify-between gap-4 px-4 sm:px-8">
+    <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-8">
 
       <!-- Brand + Navigation-->
       <div class="flex items-center gap-9">
@@ -8,7 +8,7 @@
           to="/"
           class="flex items-start gap-px text-2xl font-extrabold leading-none tracking-[-0.03em] text-[#163B7A]"
         >
-          DNS<span class="-mt-1 text-sm text-[#E2007B]">3L</span>
+          DNS<span class="-mt-1 text-sm text-brand-500">3L</span>
         </NuxtLink>
 
         <nav aria-label="Hauptnavigation" class="hidden items-center gap-1 md:flex">
@@ -17,7 +17,7 @@
             :key="item.to"
             :to="item.to"
             active-class="text-[#E2007B]"
-            class="rounded-lg px-3.5 py-2.5 text-[15px] font-medium text-[#2B3044] transition-colors hover:text-[#E2007B]"
+            class="rounded-lg px-3.5 py-2.5 text-[15px] font-medium text-[#2B3044] transition-colors hover:text-brand-500"
           >{{ item.label }}</NuxtLink>
       </nav>
       </div>
@@ -30,7 +30,7 @@
             aria-label="Kontomenü"
             class="flex items-center gap-2.5 rounded-lg px-1 py-1 hover:bg-black/5"
           >
-            <span class="flex size-9 items-center justify-center rounded-full bg-[#1E2A47] text-sm font-bold text-white">
+            <span class="flex size-9 items-center justify-center rounded-full bg-navy-800 text-sm font-bold text-white">
               {{ initials }}
             </span>
             <span class="hidden text-[15px] font-medium text-[#12172B] sm:inline">
@@ -43,7 +43,7 @@
           v-else
           icon="i-lucide-log-in"
           color="neutral"
-          class="h-11 rounded-[10px] px-[18px] text-[15px] font-bold"
+          class="h-11 rounded-[10px] px-4.5 text-[15px] font-bold"
           @click="login"
         >
           Log in
@@ -70,7 +70,7 @@
             :key="item.to"
             :to="item.to"
             active-class="text-[#E2007B]"
-            class="rounded-lg px-3 py-3 text-base font-medium text-[#2B3044] transition-colors hover:text-[#E2007B]"
+            class="rounded-lg px-3 py-3 text-base font-medium text-[#2B3044] transition-colors hover:text-brand-500"
             @click="mobileOpen = false"
           >{{ item.label }}</NuxtLink>
         </nav>
